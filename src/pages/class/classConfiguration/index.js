@@ -350,7 +350,6 @@ class ListStudent extends React.Component {
     }
 
     searchFields() {
-
       api
       .get('/api/teacher/' + JSON.parse(localStorage.getItem(SUCURSAL)).id)
       .then(res => {
