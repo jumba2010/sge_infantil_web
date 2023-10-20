@@ -76,7 +76,7 @@ class ListStudent extends React.Component {
     }
   }
   handleSelectClass(frequency) {
-    let freq = JSON.parse(localStorage.getItem('FREQUENCIES')).filter(
+    let freq = this.props.frequencies.filter(
       frq => frq.level === frequency,
     )[0];
 
@@ -157,7 +157,7 @@ class ListStudent extends React.Component {
                   placeholder="Pesqise pelo Nível ..."
                   style={{ width: '100%' }}
                 >
-                  {JSON.parse(localStorage.getItem('FREQUENCIES')).map(f => (
+                  {this.props.frequencies.map(f => (
                     <Option value={f.level}>{f.description}</Option>
                   ))}
                 </Select>,
@@ -206,7 +206,7 @@ class ListStudent extends React.Component {
                   placeholder="Pesquise pelo Nível ..."
                   style={{ width: '100%' }}
                 >
-                  {JSON.parse(localStorage.getItem('FREQUENCIES')).map(f => (
+                  {this.props.frequencies.map(f => (
                     <Option value={f.level}>{f.description}</Option>
                   ))}
                 </Select>,

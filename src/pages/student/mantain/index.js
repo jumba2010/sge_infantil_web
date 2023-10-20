@@ -40,9 +40,6 @@ const { TabPane } = Tabs;
 
 import styles from './index.less';
 const FormItem = Form.Item;
-const apiRemote = axios.create({
-  baseURL: 'http://localhost:3333/',
-});
 
 const pageSize = 6;
 const menu = (
@@ -182,7 +179,7 @@ class ListStudent extends React.Component {
         contact: record.student.carier.contact
       }));
      
-      await apiRemote.post('/api/smsntification/carrier', {
+      await api.post('/api/smsntification/carrier', {
         message: this.state.message,
         idContactPairs,
         sucursalId: JSON.parse(localStorage.getItem(SUCURSAL)).id,
@@ -439,7 +436,7 @@ class ListStudent extends React.Component {
 
   searchNotifications() {
     this.setState({ sync: true });
-    apiRemote
+    api
       .get('/api/smsntification/sucursal/' + JSON.parse(localStorage.getItem(SUCURSAL)).id)
       .then(res => {
         const pagination = { ...this.state.pagination };

@@ -331,10 +331,10 @@ const filteredStudentNumbers = [...new Set(filteredPayments.map(payment => payme
   }
 
 
-  componentWillMount() {    
+  componentDidMount() {    
 this.searchFields();
     
-        } 
+ } 
 
 searchFields(){
   const {unpaidPayments,frequencies} = this.props
