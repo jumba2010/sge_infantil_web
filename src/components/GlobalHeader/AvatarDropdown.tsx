@@ -20,8 +20,6 @@ class AvatarDropdown extends React.Component<GlobalHeaderRightProps> {
     const { key } = event;
 
     if (key === 'logout') {
-
-      console.log('Saiu')
 logout();
 
 router.push(`/`);

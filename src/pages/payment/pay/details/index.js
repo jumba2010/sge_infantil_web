@@ -7,11 +7,13 @@ import { notification } from 'antd';
 import api from '../../../../services/api';
 import months from '../../../../utils/months';
 import styles from './index.less';
+import { connect } from 'dva';
 
-
-
+@connect(({ student, loading }) => ({
+  students: student.students,
+  frequencies: student.frequencies,
+}))
 class Pay extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -51,25 +53,26 @@ class Pay extends React.Component {
 
     componentDidMount() {
 
-    api.get('/api/payment/unique/'+this.props.match.params.paymentId).then(payment => {
-          api.get('/api/frequency/1')
-      .then(res => {  
-        
-        api.get('/api/student/unique/'+payment.data.id).then(student => {     
-          let level=res.data.filter(frq=>frq.level==student.data.level)[0]
-          let month=months.filter(m=>m.code==payment.data.month)[0]
-                 this.setState({payment:payment.data,student:student.data,frequencies:res.data,level:level?level.description:'',month:month?month.desc:''})
-            
-              })
-                 
-      })
-     
-     
-      
-
-
-       
-              })
+      const {frequencies,students} = this.props
+      var payment ={}
+     const registration = students.filter(reg => {
+       const payments = reg.payments;
+       console.log('payments',payments)
+       payment =payments.filter(p=>p.id==this.props.match.params.paymentId)
+       return payments.some(payment => payment.id == this.props.match.params.paymentId);
+    
+     })[0];
+     console.log('payment',payment)
+ 
+     let level=frequencies.filter(frq => frq.level==registration.student.level)[0]
+     let month=months.filter(m=>m.code==payment.month)[0]
+     this.setState({payment:payment,
+       student:registration.student,
+       frequencies:frequencies,
+       level:level?level:'',
+       payment,
+       level:level?.description,
+       month:month?.desc})
         }
 
 

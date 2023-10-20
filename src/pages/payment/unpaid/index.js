@@ -12,7 +12,8 @@ import months from '../../../utils/months';
 import styles from './index.less';
 import axios from "axios";
 import ReactToPrint from "react-to-print";
-
+import {getLastThreeYears} from './../../utils/DateTimeUtils'
+import { connect } from 'dva';
 
 const { TextArea } = Input;
 const apiRemote = axios.create({
@@ -67,13 +68,17 @@ class ComponentToPrint extends React.Component {
 }
 
 
+@connect(({ payment, student }) => ({
+  unpaidPayments: payment.unpaidPayments,
+  frequencies:student.frequencies
+}))
 class Paid extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
     payment:{},
-    year:2020,
+    year:2023,
     sucursal:1,
     student:{},
     message:'',
@@ -86,13 +91,17 @@ class Paid extends React.Component {
     selectedRowKeys :[],
     pagination:{},
     expandForm:false,
+    filterName: '',
+    filterYear: '',
+    filterMonth: '',
+    filterLevel: '',
     loadign:true
     };
 
     this.handleChangeInput = this.handleChangeInput.bind(this); 
     this.handleSelectClass = this.handleSelectClass.bind(this); 
+    this.handleSelectYear = this.handleSelectYear.bind(this); 
     this.handleSelectMonth=this.handleSelectMonth.bind(this);
-    this.handleChangeFererence=this.handleChangeFererence.bind(this);
 
   }
   handleCancel = () => {
@@ -102,7 +111,13 @@ class Paid extends React.Component {
   handleFormReset = () => {
     const { form, dispatch } = this.props;
     form.resetFields();
-    this.searchFields();
+    this.setState({
+      filterName: '',
+      filterYear: '',
+      filterMonth: '',
+      filterLevel: '',
+      data:this.state.lastdata
+    });
      
   };
   onSelectChange = selectedRowKeys => {
@@ -118,45 +133,57 @@ class Paid extends React.Component {
     }
   }
 
-  handleChangeInput(evt) {
-         if(evt.target.name==='name'){
-           let s=this.state.lastdata.filter(d=>d.name.toLowerCase().indexOf(evt.target.value.toLowerCase()) >-1);
-      this.setState({data:s});
+
+
+  handleChangeInput(event) {
+    if (event.target.name === 'message') {
+      this.setState({ message: event.target.value });
+    }
+    else{
+      this.setState({ filterName: event.target.value }, () => {
+        this.filterData();
+      });
+    }
+  
+  }
+  
+  handleSelectYear(year) {
+    this.setState({ filterYear: year }, () => {
+      this.filterData();
+    });
+  }
+  
+  handleSelectMonth(month) {
+    this.setState({ filterMonth: month }, () => {
+      this.filterData();
+    });
+  }
+  
+  handleSelectClass(level) {
+    this.setState({ filterLevel: level }, () => {
+      this.filterData();
+    });
+  }
+  
+  filterData() {
+    let filteredData = this.state.lastdata;
+    if (this.state.filterName) {
+      filteredData = filteredData.filter(d => d.name.includes(this.state.filterName));
     }
 
-    if(evt.target.name==='message'){
-      this.setState({message:evt.target.value});
-      
-}
-
-}
-
-handleChangeFererence(ref) {
-let s=this.state.lastdata.filter(d=>d.code.indexOf(ref) >-1);
-this.setState({data:s});
-}
-    
+    if (this.state.filterYear) {
+      filteredData = filteredData.filter(d => d.year === this.state.filterYear);
+    }
+    if (this.state.filterMonth) {
+      filteredData = filteredData.filter(d => d.month === this.state.filterMonth);
+    }
+    if (this.state.filterLevel) {
+      let freq = this.props.frequencies.filter(frq => frq.level === this.state.filterLevel)[0];
+      filteredData = filteredData.filter(d => d.frequency === freq.description);
+    }
+    this.setState({ data: filteredData });
+  }
   
-  handleSelectClass(frequency) {
-    let freq= JSON.parse(localStorage.getItem('FREQUENCIES')).filter(frq=>frq.level===frequency)[0];
-    
-    let s=this.state.lastdata.filter(d=>d.frequency===freq.description);
-    this.setState({data:s});
-
-  }
-
-  payNow(payment){
-
-    this.props.history.push('/payment/pay/confirm/'+payment.key)
-  }
-
-  handleSelectMonth(month) {
-  
-    let s=this.state.lastdata.filter(d=>d.month===month);
-    this.setState({data:s});
-
-  }
-
 
   payNow(payment){
     this.props.history.push('/payment/pay/confirm/'+payment.id)
@@ -190,16 +217,20 @@ this.setState({data:s});
     }
   
     handleOk =async() =>{
-  
+      console.log('(this.state.message: ',this.state.message)
       if(this.state.message){
       this.setState({
         saving: true,
       });
   
       let all=this.state.all;
-      let studentIds=this.state.all?this.state.studentIds:this.state.selectedRowKeys;
+      let paymentIds=this.state.all?this.state.studentIds:this.state.selectedRowKeys;
+
+const filteredPayments = this.state.lastdata.filter(payment => paymentIds.includes(payment.id));
+const filteredStudentNumbers = [...new Set(filteredPayments.map(payment => payment.studentNumber))];
+
       apiRemote.post("/api/smsntification/carrier", {
-        message:this.state.message,studentIds,sucursalId:JSON.parse(localStorage.getItem(SUCURSAL)).id
+        message:this.state.message,filteredStudentNumbers,sucursalId:JSON.parse(localStorage.getItem(SUCURSAL)).id
       }) 
      
       await notification.success({
@@ -224,7 +255,7 @@ this.setState({data:s});
   
 
   renderAdvancedForm() {
-    const { form } = this.props;
+    const { form ,frequencies} = this.props;
     const { getFieldDecorator } = this.props.form;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
@@ -243,18 +274,18 @@ this.setState({data:s});
             rules: [{ required: false }],
           })(
                 <Select  onChange={this.handleSelectClass} placeholder="Pesquise pelo Nível ..." style={{ width: '100%' }}>
-                { JSON.parse(localStorage.getItem('FREQUENCIES')).map(f=> <Option value={f.level}>{f.description}</Option>)}
+                { frequencies.map(f=> <Option value={f.level}>{f.description}</Option>)}
                 </Select>)}
             </FormItem>
           </Col> 
 
             <Col md={8} sm={24}>
             <FormItem label="Ano">   
-            {getFieldDecorator('year', {initialValue:'2020',
+            {getFieldDecorator('year', {initialValue:'',
             rules: [{ required: false }],
           })(  
-            <Select placeholder="Ano.." style={{ width: '70%' }}>            
-              <Option value="2020">2020</Option>           
+            <Select  onChange={this.handleSelectYear} placeholder="Ano.." style={{ width: '70%' }}>            
+             {getLastThreeYears().map(year=><Option value={year}>{year}</Option>  )}          
             </Select>)}
             </FormItem>
           </Col>         
@@ -305,38 +336,40 @@ this.searchFields();
     
         } 
 
-       searchFields(){
-          api.get(`/api/payment/unpaid/${JSON.parse(localStorage.getItem(SUCURSAL)).id}`)
-        .then(res => {  
-          const pagination={...this.state.pagination};
-          pagination.total=res.data.length
-                  pagination.pageSize=pageSize;
-                
-           const data = [];  
+searchFields(){
+  const {unpaidPayments,frequencies} = this.props
+  const pagination={...this.state.pagination};
+  pagination.total=unpaidPayments.length
+  pagination.pageSize=pageSize;
+        
+  const data = [];  
 
-    for (let i = 0; i < res.data.length; i++) {   
-           let freq= JSON.parse(localStorage.getItem('FREQUENCIES')).filter(frq=>frq.level===res.data[i].student.level)[0]   
-      let month=months.filter((m)=>m.code==res.data[i].month)[0].desc 
-        data.push({
-          key: res.data[i].student.studentNumber,  
-          id:res.data[i].id,  
-        name: res.data[i].student.name,
-        year: res.data[i].year,
-        month:month,
-        total:res.data[i].total,
-        fine:res.data[i].fine,
-        monthlyPayment:res.data[i].student.currentMonthlyPayment,  
-        frequency:freq.description,
-       limitDate:moment(res.data[i].limitDate).format('YYYY-MM-DD'),     
-      
-      });
-       } 
-       let studentIds=res.data.map((s)=>s.student.studentNumber);
-    
-    this.setState({data,students:data,lastdata:data,loadign:false,pagination,studentIds});        
-                    
-        }) 
-        }
+  console.log('payments',unpaidPayments)
+
+for (let i = 0; i < unpaidPayments.length; i++) {   
+   let freq= frequencies.filter(frq=>frq.level===unpaidPayments[i].student.level)[0]   
+  let month=months.filter((m)=>m.code==unpaidPayments[i].month)[0].desc 
+  data.push({
+  key: unpaidPayments[i].id,  
+  id:unpaidPayments[i].id,  
+  name: unpaidPayments[i].student.name,
+  year: unpaidPayments[i].year,
+  month:month,
+  total:unpaidPayments[i].total,
+  fine:unpaidPayments[i].fine,
+  studentNumber:unpaidPayments[i].student.studentNumber,
+  monthlyPayment:unpaidPayments[i].student.currentMonthlyPayment,  
+  frequency:freq.description,
+  limitDate:moment(unpaidPayments[i].limitDate).format('YYYY-MM-DD'),     
+
+});
+} 
+let studentIds=unpaidPayments.map((s)=>s.student.studentNumber);
+
+this.setState({data,students:data,lastdata:data,loadign:false,pagination,studentIds});        
+            
+
+  }
 
   render() { 
     const { selectedRowKeys } = this.state;

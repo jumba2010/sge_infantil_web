@@ -10,6 +10,7 @@ import { StateType } from './model';
 import LoginComponents from './components/Login';
 import styles from './style.less';
 import API from './../../../services/api';
+import {useDispatch} from  'react-redux';
 import { login, USER_KEY, SUCURSAL } from './../../../services/auth';
 
 const { UserName, Password, Submit } = LoginComponents;
@@ -72,23 +73,45 @@ class Login extends Component<LoginProps, LoginState> {
     sucursals: [],
   };
 
+ 
+  
   changeAutoLogin = (e: CheckboxChangeEvent) => {
     this.setState({
       autoLogin: e.target.checked,
     });
   };
+
   gotoHomePage = async () => {
     if (this.state.sucursal) {
       let sucursal = this.state.sucursals.filter(s => s.code === this.state.sucursal)[0];
       localStorage.setItem(SUCURSAL, JSON.stringify(sucursal));
-      let response = await API.get('/api/frequency/' + sucursal.id);
-      localStorage.setItem('FREQUENCIES', JSON.stringify(response.data));
+      
+      const dispatch = this.props.dispatch;
+      if (dispatch) {
+        dispatch({
+          type: 'student/fetchFrequencies',
+        });
+
+        console.log('calling students')
+        dispatch({
+          type: 'student/fetchActiveStudents',
+        });
+
+        dispatch({
+          type: 'payment/fetchUnpaidPayments',
+        });
+
+  
+      }
+
+      //let response = await API.get('/api/frequency/' + sucursal.id);
+      // localStorage.setItem('FREQUENCIES', JSON.stringify(response.data));
+      // let fr = JSON.parse(localStorage.getItem('FREQUENCIES'));
       this.props.history.push('/dashboard/analysis');
     }
   };
 
   handleChangeInput(evt) {
-    console.log([evt.target.name], evt.target.name);
     this.setState({ [evt.target.name]: evt.target.value });
   }
 
@@ -99,7 +122,6 @@ class Login extends Component<LoginProps, LoginState> {
       }
     });
     const { newPass, repeatPass } = this.state;
-    console.log('Password', newPass, repeatPass);
     let user = JSON.parse(localStorage.getItem(USER_KEY));
     if (newPass && repeatPass && newPass === repeatPass) {
       await API.put('/api/user/password/' + user.id, { password: newPass, updatedBy: 1 });
@@ -117,21 +139,27 @@ class Login extends Component<LoginProps, LoginState> {
         });
       } else {
         localStorage.setItem(SUCURSAL, JSON.stringify(user.sucursals[0]));
-        let response = await API.get('/api/frequency/' + user.sucursals[0].id);
-        localStorage.setItem('FREQUENCIES', JSON.stringify(response.data));
-
+        
+        const dispatch = this.props.dispatch;
+        dispatch({
+          type: 'student/fetchFrequencies',
+        });
+        
+        
+        // let response = await API.get('/api/frequency/' + user.sucursals[0].id);
+        // localStorage.setItem('FREQUENCIES', JSON.stringify(response.data));
         this.props.history.push('/dashboard/analysis');
       }
     }
   };
 
-  handleSelectSucursals(sucursal) {
+  handleSelectSucursals(sucursal:any) {
     this.setState({ sucursal });
   }
 
-  handleValidate = e => {
+  handleValidate = (e: any) => {
     e.preventDefault();
-    this.props.form.validateFieldsAndScroll((err, values) => {
+    this.props.form.validateFieldsAndScroll((err: any, values:any) => {
       if (!err) {
         console.log('Values:', values);
       }
@@ -149,6 +177,7 @@ class Login extends Component<LoginProps, LoginState> {
       const { ipaddress, location } = this.state;
       let userAgent = window.navigator.userAgent;
       const logins = await API.get('/api/logininfo/' + userDetails.data.id);
+      
       //Registando a informação de login
       await API.post('/api/logininfo', {
         ipaddress,

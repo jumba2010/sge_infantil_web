@@ -7,8 +7,6 @@ import api ,{baseURL} from '../../../services/api';
 import { USER_KEY,SUCURSAL } from "../../../services/auth";
 import './index.less';
 import { Label } from 'bizcharts';
-import socketIOClient from "socket.io-client";
-const socket = socketIOClient(baseURL);
 class EditableTable extends React.Component {
 
    constructor(props) {
@@ -20,7 +18,6 @@ class EditableTable extends React.Component {
 
   componentDidMount() {
     localStorage.removeItem('SYNCTOCLOUD');
-    socket.on("percentage", data => this.setState({ percentage: data,success:data===100 }));
         }
 
 sincronize=async()=>{

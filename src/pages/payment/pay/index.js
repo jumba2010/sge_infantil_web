@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { connect } from 'dva';
 import {
   Table,
   Card,
@@ -31,6 +32,10 @@ import months from '../../../utils/months';
 const FormItem = Form.Item;
 const pageSize = 6;
 
+@connect(({ student, loading }) => ({
+  students: student.students,
+  frequencies: student.frequencies,
+}))
 class ListStudent extends React.Component {
   constructor(props) {
     super(props);
@@ -47,9 +52,11 @@ class ListStudent extends React.Component {
       loadign: true,
     };
 
+
     this.handleChangeInput = this.handleChangeInput.bind(this);
     this.handleSelectClass = this.handleSelectClass.bind(this);
   }
+
   handleCancel = () => {
     this.setState({ visible: false });
   };
@@ -81,7 +88,8 @@ class ListStudent extends React.Component {
     let m = months.filter(m => m.desc == payment.month)[0];
     let month = months.indexOf(m) + 1;
     let studentId = payment.studentId;
-    let student = this.state.students.filter(s => s.key === studentId)[0];
+  
+    let student = this.state.students.filter(s => s.studentId == studentId)[0];
     let payments = student.payments;
 
     let previousMonth = payments.filter(p => p.month === month - 1)[0];
@@ -266,37 +274,36 @@ class ListStudent extends React.Component {
   }
 
   searchFields() {
-    api
-      .get('/api/registration/current/' + JSON.parse(localStorage.getItem(SUCURSAL)).id)
-      .then(res => {
-        const pagination = { ...this.state.pagination };
-        pagination.total = res.data.length;
-        pagination.pageSize = pageSize;
 
-        const data = [];
-        for (let i = 0; i < res.data.length; i++) {
-          let freq = JSON.parse(localStorage.getItem('FREQUENCIES')).filter(
-            frq => frq.level === res.data[i].level,
-          )[0];
+    const { students, frequencies } = this.props;
+    const pagination = { ...this.state.pagination };
+    pagination.total = students.length;
+    pagination.pageSize = pageSize;
 
-          data.push({
-            key: res.data[i].id,
-            name: res.data[i].name,
-            currentMonthlyPayment: res.data[i].currentMonthlyPayment,
-            birthDate: res.data[i].birthDate,
-            frequency: freq.description,
-            createdAt: moment(res.data[i].createdAt).format('YYYY-MM-DD'),
-            payments: res.data[i].payments,
-          });
-        }
+    const data = [];
+    for (let i = 0; i < students.length; i++) {
+      let freq = frequencies.filter(
+        f => f.level + "" == "" + students[i].student.level,
+      )[0];
 
-        this.setState({ data, students: data, lastdata: data, loadign: false, pagination });
+      data.push({
+        key: students[i].student.id,
+        name: students[i].student.name,
+        currentMonthlyPayment: students[i].student.currentMonthlyPayment,
+        birthDate: students[i].student.birthDate,
+        frequency: freq.description,
+        createdAt: moment(students[i].student.createdAt).format('YYYY-MM-DD'),
+        payments: students[i].payments,
+        studentId:students[i].student.id
       });
+    }
+
+    this.setState({ data, students: data, lastdata: data, loadign: false, pagination });
   }
 
   render() {
     const columns = [
-      { title: 'Nome', dataIndex: 'name', key: 'name', render: text => <a>{text}</a> },
+      { title: 'Nome', dataIndex: 'name', key: 'name' },
       { title: 'Data de Nacimento', dataIndex: 'birthDate', key: 'birthDate' },
       { title: 'Nível', dataIndex: 'frequency', key: 'frequency' },
       { title: 'Data de Inscrição', dataIndex: 'createdAt', key: 'createdAt' },
@@ -321,7 +328,7 @@ class ListStudent extends React.Component {
           key: 'status',
           render: (text, record) => (
             <span>
-              {record.status == 0 ? (
+              {record.status + "" == "0" ? (
                 <Badge count={'Não Pago'} />
               ) : record.hasFine ? (
                 <Badge count={'Pago'} style={{ backgroundColor: '#DAA520' }} />
@@ -363,15 +370,16 @@ class ListStudent extends React.Component {
           year: record.payments[index].year,
           month: month,
           discount: record.payments[index].discount,
-          fine: record.payments[index].fine,
+          fine: record.payments[index].fine?record.payments[index].fine:0,
           currentMonthlyPayment: record.currentMonthlyPayment,
           paymentDate: record.payments[index].paymentDate,
           hasFine: record.payments[index].hasFine,
           total: record.payments[index].total,
           status: record.payments[index].status,
           limit: record.payments[index].limitDate,
-          studentId: record.payments[index].studentId,
+          studentId: record.studentId,
         });
+     
       }
 
       return (
@@ -396,7 +404,7 @@ class ListStudent extends React.Component {
               <Descriptions.Item label="Estado">
                 {' '}
                 <span>
-                  {record.status == 0 ? (
+                  {record.status + "" == "0" ? (
                     <Badge count={'Não Pago'} />
                   ) : (
                     <Badge count={'Pago'} style={{ backgroundColor: '#52c41a' }} />

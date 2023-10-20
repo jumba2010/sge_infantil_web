@@ -239,102 +239,102 @@ export default {
               ],
             },
 
-            //TEACHER BEGIN
-            {
-              path: '/teacher',
-              icon: 'user',
-              name: 'teacher',
-              routes: [
-                {
-                  name: 'create',
-                  icon: 'user-add',
-                  path: '/teacher/create',
-                  authority: ['admin', 'user'],
-                  component: './teacher/create',
-                },
+            // //TEACHER BEGIN
+            // {
+            //   path: '/teacher',
+            //   icon: 'user',
+            //   name: 'teacher',
+            //   routes: [
+            //     {
+            //       name: 'create',
+            //       icon: 'user-add',
+            //       path: '/teacher/create',
+            //       authority: ['admin', 'user'],
+            //       component: './teacher/create',
+            //     },
 
-                {
-                  name: 'edit',
-                  icon: 'edit',
-                  path: '/teacher/edit/:id',
-                  authority: ['admin', 'user'],
-                  hideInMenu: true,
-                  component: './teacher/edit',
-                },
-                {
-                  name: 'list',
-                  icon: 'list',
-                  path: '/teacher/list',
-                  authority: ['admin', 'user'],
-                  component: './teacher/list',
-                },
-              ],
-            },
-            //END TEACHER
+            //     {
+            //       name: 'edit',
+            //       icon: 'edit',
+            //       path: '/teacher/edit/:id',
+            //       authority: ['admin', 'user'],
+            //       hideInMenu: true,
+            //       component: './teacher/edit',
+            //     },
+            //     {
+            //       name: 'list',
+            //       icon: 'list',
+            //       path: '/teacher/list',
+            //       authority: ['admin', 'user'],
+            //       component: './teacher/list',
+            //     },
+            //   ],
+            // },
+            // //END TEACHER
 
-            //BEGIN CLASS 
-            {
-              path: '/class',
-              icon: 'user-add',
-              name: 'class',
-              routes: [
-                {
-                  name: 'allocatestudent',
-                  icon: 'user-add',
-                  path: '/class/allocateStudent',
-                  authority: ['admin', 'user'],
-                  component: './class/allocateStudent',
-                },
-                {
-                  name: 'view',
-                  icon: 'list',
-                  path: '/class/view',
-                  authority: ['admin', 'user'],
-                  component: './class/view',
-                },
-                {
-                  name: 'configureclasses',
-                  icon: 'user-add',
-                  path: '/class/classConfiguration',
-                  authority: ['admin', 'user'],
-                  component: './class/classConfiguration',
-                },
-              ],
-            },
-            //END CLASS
+            // //BEGIN CLASS 
+            // {
+            //   path: '/class',
+            //   icon: 'user-add',
+            //   name: 'class',
+            //   routes: [
+            //     {
+            //       name: 'allocatestudent',
+            //       icon: 'user-add',
+            //       path: '/class/allocateStudent',
+            //       authority: ['admin', 'user'],
+            //       component: './class/allocateStudent',
+            //     },
+            //     {
+            //       name: 'view',
+            //       icon: 'list',
+            //       path: '/class/view',
+            //       authority: ['admin', 'user'],
+            //       component: './class/view',
+            //     },
+            //     {
+            //       name: 'configureclasses',
+            //       icon: 'user-add',
+            //       path: '/class/classConfiguration',
+            //       authority: ['admin', 'user'],
+            //       component: './class/classConfiguration',
+            //     },
+            //   ],
+            // },
+            // //END CLASS
 
-            //BEGIN AGENDA 
-            {
-              path: '/agenda',
-              icon: 'user-add',
-              name: 'agenda',
-              routes: [
-                {
-                  name: 'create',
-                  icon: 'user-add',
-                  path: '/agenda/create',
-                  authority: ['admin', 'user'],
-                  component: './agenda/create',
-                },
+            // //BEGIN AGENDA 
+            // {
+            //   path: '/agenda',
+            //   icon: 'user-add',
+            //   name: 'agenda',
+            //   routes: [
+            //     {
+            //       name: 'create',
+            //       icon: 'user-add',
+            //       path: '/agenda/create',
+            //       authority: ['admin', 'user'],
+            //       component: './agenda/create',
+            //     },
 
-                {
-                  name: 'publish',
-                  icon: 'user-add',
-                  path: '/agenda/publish',
-                  authority: ['admin', 'user'],
-                  component: './agenda/publish',
-                },
+            //     {
+            //       name: 'publish',
+            //       icon: 'user-add',
+            //       path: '/agenda/publish',
+            //       authority: ['admin', 'user'],
+            //       component: './agenda/publish',
+            //     },
 
-                {
-                  name: 'list',
-                  icon: 'list',
-                  path: '/agenda/list',
-                  authority: ['admin', 'user'],
-                  component: './agenda/list',
-                },
-              ],
-            },
-            //END AGENDA
+            //     {
+            //       name: 'list',
+            //       icon: 'list',
+            //       path: '/agenda/list',
+            //       authority: ['admin', 'user'],
+            //       component: './agenda/list',
+            //     },
+            //   ],
+            // },
+            // //END AGENDA
 
             {
               path: '/setting',

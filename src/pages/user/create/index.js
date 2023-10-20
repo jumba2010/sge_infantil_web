@@ -129,8 +129,9 @@ class User extends React.Component {
   };
 
   componentDidMount() {
-    api.get('/api/profile')
-        .then(res => {         
+    api.get('/api/profile/'+ JSON.parse(localStorage.getItem(SUCURSAL)).id)
+        .then(res => {   
+          console.log(res.data)      
           this.setState({profiles:res.data});           
         })
  
@@ -161,23 +162,26 @@ class User extends React.Component {
 
   confirmTransaction= async() =>{  
         this.setState({ loading: true })
- //   let loggedUser = JSON.parse(localStorage.getItem(USER_KEY));
-
- //let loggedUser = JSON.parse(localStorage.getItem(USER_KEY));
- let activatedBy=1;
- let createdBy=1;
- let { name,address,email,contact,profileId,sucursals,} = this.state
+ let loggedUser = JSON.parse(localStorage.getItem(USER_KEY));
+ let activatedBy = loggedUser.id;
+ let createdBy = loggedUser.id;
+ let sucursalId = JSON.parse(localStorage.getItem(SUCURSAL)).id;
+ let { name,address,email,contact,profileId,sucursals} = this.state
 let newSucursals=[];
  for (let index = 0; index < sucursals.length; index++) {
    const element = sucursals[index];
-   newSucursals.push({id:element})
+   const sucursal = JSON.parse(localStorage.getItem(USER_KEY)).sucursals.
+   filter(s=>s.code==element)[0]
+   
+   newSucursals.push(sucursal)
 
    
  }
  let username = this.returnUserName(name)+''+(new Date().getFullYear());
- let password =username// Math.random().toString(36).slice(-6);
-let User= await api.post("/api/user", {
-  name,email,contact,address,picture:'',profileId,username,sucursals:newSucursals, password:'#'+username,activatedBy,createdBy
+ let password =username
+ let profile = this.state.profiles.filter(p=>p.id==profileId)[0]
+let User = await api.post("/api/user", {
+ sucursalId, name,email,contact,address,profile,username,sucursals:newSucursals, password:'#'+username,activatedBy,createdBy
 })
 .catch(function (error) { 
   notification.error({
@@ -186,9 +190,9 @@ let User= await api.post("/api/user", {
     });     
 });
 
+const current = this.state.current + 1;      
+this.setState({ current,loading:false,username });
 
- const current = this.state.current + 1;      
-    this.setState({ current,loading:false,username });
     
   }
 
@@ -385,7 +389,7 @@ current==0?
     mode='tags'
   >
     {
- allsucursals.map(s=><Option key={s.code}>{s.desc}</Option>)
+ JSON.parse(localStorage.getItem(USER_KEY)).sucursals.map(s=><Option key={s.code}>{s.description}</Option>)
   }
      </Select>          
 
@@ -418,11 +422,11 @@ current==1?
             <Descriptions.Item label="Contacto">{this.state.contact}</Descriptions.Item>
             <Descriptions.Item label="Morada">{this.state.address}</Descriptions.Item>
             <Descriptions.Item label="Perfil">{this.state.profiles?this.state.profiles.filter((p)=>p.id==this.state.profileId)[0].description:''}</Descriptions.Item>
-            <Descriptions.Item label="Sucursais">{this.state.sucursals.map((s)=>allsucursals.filter((s2)=>s2.code==s)[0].desc , ) }</Descriptions.Item>
+            <Descriptions.Item label="Sucursais">{this.state.sucursals.map((s)=>JSON.parse(localStorage.getItem(USER_KEY)).sucursals.filter((s2)=>s2.code==s)[0].description , ) }</Descriptions.Item>
           </Descriptions>
         
 <Form.Item >
-<Button style={{ marginLeft: 180 }} onClick={() => this.prev()}>
+<Button style={{ marginLeft: 160 }} onClick={() => this.prev()}>
               Anterior
             </Button>
        

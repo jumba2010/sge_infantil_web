@@ -1,5 +1,5 @@
 export const TOKEN_KEY = "NMCTOKEN2019@123";
-export const SUCURSAL="SUCURSAL2019@1234"
+export const SUCURSAL='SUCURSAL'
 export const USER_KEY = "NMCUSER2019@123";
 export const isAuthenticated = () => localStorage.getItem(USER_KEY) !== null;
 export const getToken = () => localStorage.getItem(TOKEN_KEY);

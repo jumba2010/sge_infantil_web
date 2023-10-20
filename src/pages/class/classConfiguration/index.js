@@ -42,12 +42,11 @@ const apiRemote = axios.create({
 });
 
 const pageSize = 6;
-const menu = (
-  <Menu>
-    <Menu.Item>Action 1</Menu.Item>
-    <Menu.Item>Action 2</Menu.Item>
-  </Menu>
-);
+
+const formItemLayout = {
+  labelCol: { span: 4 },
+  wrapperCol: { span: 20 },
+};
 
 class ListStudent extends React.Component {
   constructor(props) {
@@ -69,6 +68,7 @@ class ListStudent extends React.Component {
       frequencies: [],
       teachers: [],
       message: '',
+      className:'',
       pagination: {},
       pagination1: {},
       expandForm: false,
@@ -101,6 +101,9 @@ class ListStudent extends React.Component {
         d => d.name.toLowerCase().indexOf(evt.target.value.toLowerCase()) > -1,
       );
       this.setState({ data: s });
+    }
+    if (evt.target.name === 'className') {
+      this.setState({ className: evt.target.value });
     }
 
     if (evt.target.name === 'message') {
@@ -197,8 +200,6 @@ class ListStudent extends React.Component {
 
     handleSelectNotificationStatus(status) {
       let s = this.state.lastNotificationdata.filter(n => n.status == status);
-      console.log(status);
-      console.log(this.state.lastNotificationdata);
       this.setState({ notifications: s });
     }
 
@@ -218,7 +219,7 @@ class ListStudent extends React.Component {
                   <Select
                     onChange={this.handleSelectClass}
                     placeholder="Pesqise pelo Nível ..."
-                    style={{ width: '100%' }}
+                    style={{ width: 220 }}
                   >
                     {frequencies.map(f => (
                       <Option value={f.level}>{f.description}</Option>
@@ -228,15 +229,15 @@ class ListStudent extends React.Component {
               </FormItem>
             </Col>
 
-            <Col md={9} sm={24} >
+            <Col md={10} sm={24} >
               <FormItem label="Professor">
                 {getFieldDecorator('teacher', { initialValue: '', rules: [{ required: false }] })(
                   <Select
                     onChange={this.handleSelectClass}
                     placeholder="Pesqise pelo Professor ..."
-                    style={{ width: '100%' }}
+                    style={{ width: 220 }}
                   >
-                    {this.state.teachers.map(f => (
+                    {this.state.teachers.map(t => (
                       <Option value={t.name}>{t.name}</Option>
                     ))}
                   </Select>,
@@ -244,7 +245,7 @@ class ListStudent extends React.Component {
               </FormItem>
             </Col>
 
-            <Col md={6} sm={24}>
+            <Col md={5} sm={24}>
               <span>
                 <Button style={{ marginLeft: 2 }} onClick={this.handleFormReset.bind(this)}>
                   Limpar Campos
@@ -256,56 +257,6 @@ class ListStudent extends React.Component {
       );
     }
 
-    renderNotificationFormForm() {
-      const { form } = this.props;
-      const { getFieldDecorator } = this.props.form;
-      return (
-        <Form onSubmit={this.handleSearch} layout="inline">
-          <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col md={8} sm={24}>
-              <FormItem label="Data de Envio">
-                {getFieldDecorator('date-picker', {
-                  rules: [{ type: 'object', required: false }],
-                })(<DatePicker style={{ width: '100%' }} placeholder="Data de Envio" />)}
-              </FormItem>
-            </Col>
-
-            <Col md={7} sm={24}>
-              <FormItem label="Estado">
-                {getFieldDecorator('createdAt', { initialValue: '', rules: [{ required: false }] })(
-                  <Select
-                    onChange={this.handleSelectNotificationStatus.bind(this)}
-                    placeholder="Estado.."
-                    style={{ width: '100%' }}
-                  >
-                    <Option value="0">Nao confirmado</Option>
-                    <Option value="1">Entregue</Option>
-                    <Option value="2">Nao entregue</Option>
-                  </Select>,
-                )}
-              </FormItem>
-            </Col>
-
-            <Col md={9} sm={24}>
-              <span>
-                <Button style={{ marginLeft: 4 }} onClick={this.handleFormReset.bind(this)}>
-                  Limpar Campos
-                </Button>
-
-                <Button
-                  type="primary"
-                  icon="sync"
-                  style={{ marginLeft: 6 }}
-                  onClick={this.searchNotifications.bind(this)}
-                >
-                  Refresh
-                </Button>
-              </span>
-            </Col>
-          </Row>
-        </Form>
-      );
-    }
 
     renderForm() {
       return  this.renderSimpleForm();
@@ -367,7 +318,6 @@ class ListStudent extends React.Component {
 
           let studentIds = res.data.map(s => s.studentNumber);
           this.setState({
-            studentIds,
             originaldata: res.data,
             data: res.data,
             lastdata: res.data,
@@ -415,6 +365,22 @@ class ListStudent extends React.Component {
         },
       ];
 
+
+      const studentColumns = [
+        {
+          title: 'Nome',
+          dataIndex: 'studentName'
+        },
+        {
+          title: 'Nivel',
+          dataIndex: 'frequencyDescription'
+        },
+        {
+          title: 'Data de Nascimento',
+          dataIndex: 'birthdate'
+        }
+      ];
+
       const { selectedRowKeys } = this.state;
       const rowSelection = {
         selectedRowKeys,
@@ -453,13 +419,13 @@ class ListStudent extends React.Component {
 
           <Modal
             visible={this.state.visible}
-            title={`Notificar (${this.state.all ? this.state.studentIds.length : this.state.selectedRowKeys.length
-              } ) Contactos`}
+            title='Alocar Estudantes a turma'
             onOk={this.handleOk}
-            width={800}
+            style={{ top:'10px' }}
+            width={900}
             onCancel={this.handleCancel.bind(this)}
             footer={[
-              <Button key="back" onClick={this.handleCancel.bind(this)}>
+              <Button  type="danger" key="back" onClick={this.handleCancel.bind(this)}>
                 Cancelar
               </Button>,
               <Button
@@ -473,21 +439,51 @@ class ListStudent extends React.Component {
               </Button>,
             ]}
           >
-            <Form.Item label={<span>Mensagem (Maximo 160 caracteres)</span>}>
-              {getFieldDecorator('message', {
-                initialValue: `${this.state.message}`,
-                rules: [
-                  { required: true, message: 'Por favor informe a Mensagen!', whitespace: true },
-                ],
-              })(
-                <TextArea
-                  rows={5}
-                  maxLength="160"
-                  name="message"
-                  onChange={this.handleChangeInput}
-                />,
-              )}
-            </Form.Item>
+        <Form {...formItemLayout} >
+
+          <FormItem label="Nome da Turma">
+                {getFieldDecorator('className', { initialValue: '', rules: [{ required: true,message:"Por favor informe o nome da turma" }] })(
+                  <Input autoComplete="off" onChange={this.handleChangeInput}
+                    style={{ width: 300 }}
+                 /> 
+                )}
+              </FormItem>
+            <FormItem label="Nível">
+                {getFieldDecorator('level', { initialValue: '', rules: [{ required: true,message:"Por favor seleccione o Nivel" }] })(
+                  <Select
+                    onChange={this.handleSelectClass}
+                    placeholder="Pesqise pelo Nível ..."
+                    style={{ width: 300 }}
+                  >
+                    {frequencies.map(f => (
+                      <Option value={f.level}>{f.description}</Option>
+                    ))}
+                  </Select>,
+                )}
+              </FormItem>
+
+              <FormItem label="Professor">
+                {getFieldDecorator('teacher', { initialValue: '', rules: [{ required: true,message: 'Por favor informe o Nome do professor' }] })(
+                  <Select showSearch
+                    onChange={this.handleSelectClass}
+                    placeholder="Pesqise pelo Professor ..."
+                    style={{ width: 300 }}
+                  >
+                    {this.state.teachers.map(t => (
+                      <Option value={t.name}>{t.name}</Option>
+                    ))}
+                  </Select>,
+                )}
+              </FormItem>
+              </Form>
+      <Table
+        columns={studentColumns}
+        dataSource={this.state.students}
+        rowSelection={{
+          type: 'checkbox'
+        }}
+      />
+ 
           </Modal>
         </PageHeaderWrapper>
       );

@@ -36,15 +36,13 @@ function desabledBirthDate(current){
 }
 
 function onChange(value) {
-    console.log(`selected ${value}`);
   }
   
   function onBlur() {
-    console.log('blur');
   }
   
   function onFocus() {
-    console.log('focus');
+
   }
   
   function onSearch(val) {

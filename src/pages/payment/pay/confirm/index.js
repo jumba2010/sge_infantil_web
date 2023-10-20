@@ -8,9 +8,12 @@ import api from '../../../../services/api';
 import { USER_KEY,SUCURSAL } from "../../../../services/auth";
 import months from '../../../../utils/months';
 import styles from './index.less';
+import { connect } from 'dva';
 
-
-
+@connect(({ student, loading }) => ({
+  students: student.students,
+  frequencies: student.frequencies,
+}))
 class Pay extends React.Component {
 
   constructor(props) {
@@ -18,9 +21,11 @@ class Pay extends React.Component {
     this.state = {
      payment:{},
      student:{},
+     payments:[],
      level:'',
      month:'',
      loading:false,
+     registrationId:'',
      frequencies:[],
      paymentMethod:'',
      success:false,
@@ -54,20 +59,38 @@ const {paymentMethod,receiptNumber}=this.state;
   
 if(paymentMethod && receiptNumber){
   this.setState({loading:true});
+
+  const {registrationId,payments,payment,student} =this.state;
+  const indexToReplace = payments.findIndex((payment) => payment.id === payment.id);
+
+  if (indexToReplace !== -1) {
+    // If a matching payment was found, replace it
+    payments[indexToReplace] = payment;
+  }
+  
   await api.put('/api/payment/pay/'+this.props.match.params.paymentId, {
-    paymentMethod,receiptNumber,updatedBy:1,studentId:this.state.student.id })
-  .catch(function (error) { 
+    payments,registrationId,
+    paymentMethod,receiptNumber,updatedBy:1,studentId:student.id })
+    .then( res =>{
+      this.props.dispatch({
+        type: 'student/fetchActiveStudents'
+      });
+      // this.props.dispatch({
+      //   type: 'student/addStudent',
+      //   payload: { registrationId: registrationId },
+      // });
+      this.setState({success:true,loading:false})
+    })
+    .catch(function (error) { 
     notification.error({
         description:'Erro ao Processar o o seu pedido',
         message: 'Erro ao processar o pedido',
       });  
-     // this.setState({success:false,loading:false})   
+      
   });
- 
-  this.setState({success:true,loading:false})
 }
 
-  }
+}
 
   cancel(){
     this.props.history.push('/payment/pay')
@@ -79,32 +102,45 @@ if(paymentMethod && receiptNumber){
 
   }
 
-    componentDidMount() {
-
-    api.get('/api/payment/unique/'+this.props.match.params.paymentId).then(payment => {
-          api.get('/api/frequency/'+JSON.parse(localStorage.getItem(SUCURSAL)).id)
-      .then(res => {  
-        
-        api.get('/api/student/unique/'+payment.data.studentId).then(student => {     
-          let level=res.data.filter(frq=>frq.level==student.data.level)[0]
-          let month=months.filter(m=>m.code==payment.data.month)[0]
-                 this.setState({payment:payment.data,student:student.data,frequencies:res.data,level:level?level.description:'',month:month?month.desc:''})
-            
-              })
-                 
-      })
-     
-     
-      
-
-
-       
-              })
-        }
+  componentDidMount() {
+    this.fetchData();
+  }
+  
+  componentDidUpdate(prevProps) {
+    if (this.props.match.params.paymentId !== prevProps.match.params.paymentId) {
+      this.fetchData();
+    }
+  }
+  
+  async fetchData() {
+    const { frequencies, students } = this.props;
+    const { paymentId } = this.props.match.params;
+  
+    const registration = students.find((reg) => {
+      const payments = reg.payments;
+      const payment = payments.find((p) => p.id === paymentId);
+      if (payment) {
+        const month = months.find((m) => m.code === payment.month);
+        const level = frequencies.find((frq) => frq.level === reg.student.level);
+  
+        this.setState({
+          payment: payment,
+          registrationId:reg.id,
+          payments:payments,
+          month: month?.desc,
+          student: reg.student,
+          levelDescription: level?.description,
+        });
+  
+        return true;
+      }
+      return false;
+    });
+  }
+  
 
 
   render() {
-
     const { current } = this.state;
     const { getFieldDecorator } = this.props.form;
 
@@ -132,9 +168,9 @@ if(paymentMethod && receiptNumber){
        <Alert message="Confirmação do Pagamento" description="Informe os campos abaixo e clique em confirmar" type="info" showIcon></Alert>
        <Row style={{ padding: '50px 20px' }}>
      <Descriptions title={this.state.student.name} >
-    <Descriptions.Item label="Nível">{this.state.level}</Descriptions.Item>
-    <Descriptions.Item label="Data de Inscrição">{moment(this.state.student.createdAt).format('YYYY-MM-DD')}</Descriptions.Item>
-    <Descriptions.Item label="Data Limite de Pagamento">{moment(this.state.payment.limitDate).format('YYYY-MM-DD')}</Descriptions.Item>
+    <Descriptions.Item label="Nível">{this.state.levelDescription}</Descriptions.Item>
+    <Descriptions.Item label="Data de Inscrição">{this.state.student.createdAt}</Descriptions.Item>
+    <Descriptions.Item label="Data Limite de Pagamento">{this.state.payment.limitDate}</Descriptions.Item>
     <Descriptions.Item label="Ano">{this.state.payment.year}</Descriptions.Item>
     <Descriptions.Item label="Mês">{this.state.month}</Descriptions.Item>
        <Descriptions.Item label="Valor Mensal">
@@ -142,7 +178,7 @@ if(paymentMethod && receiptNumber){
           </Descriptions.Item>
 
            <Descriptions.Item label="Multa">
-           {this.state.payment.fine} MZN
+           {this.state.payment.fine?this.state.payment.fine:0} MZN
           </Descriptions.Item>
 
           <Descriptions.Item label="Desconto">
@@ -173,7 +209,7 @@ if(paymentMethod && receiptNumber){
              <Option value="POS">POS</Option>
              <Option value="TRANSFERENCIA">Transferência Bancária</Option>
              <Option value="DEPOSITO">Deposito Bancário</Option>
-             <Option value="MPEZA">Mpeza</Option>
+             <Option value="MPESA">Mpesa</Option>
           </Select>)}        
                 
                  </Form.Item>

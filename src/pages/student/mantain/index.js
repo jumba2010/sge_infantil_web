@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { connect } from 'dva';
+
 var querystring = require('querystring');
 import {
   Table,
@@ -34,7 +36,8 @@ import axios from 'axios';
 const { TextArea } = Input;
 const { Text } = Typography;
 const { TabPane } = Tabs;
-const frequencies = JSON.parse(localStorage.getItem('FREQUENCIES'));
+
+
 import styles from './index.less';
 const FormItem = Form.Item;
 const apiRemote = axios.create({
@@ -49,7 +52,12 @@ const menu = (
   </Menu>
 );
 
+@connect(({ student, loading }) => ({
+  students: student.students,
+  frequencies: student.frequencies,
+}))
 class ListStudent extends React.Component {
+
   constructor(props) {
     super(props);
     this.state = {
@@ -71,12 +79,15 @@ class ListStudent extends React.Component {
       pagination: {},
       pagination1: {},
       expandForm: false,
-      loadign: true,
+
     };
 
     this.handleChangeInput = this.handleChangeInput.bind(this);
     this.handleSelectClass = this.handleSelectClass.bind(this);
   }
+
+   frequencies = this.props.frequencies
+   students = this.props.students
 
   handleFormReset = () => {
     const { form, dispatch } = this.props;
@@ -97,7 +108,7 @@ class ListStudent extends React.Component {
   handleChangeInput(evt) {
     if (evt.target.name === 'name') {
       let s = this.state.lastdata.filter(
-        d => d.name.toLowerCase().indexOf(evt.target.value.toLowerCase()) > -1,
+        d => d.student.name.toLowerCase().indexOf(evt.target.value.toLowerCase()) > -1,
       );
       this.setState({ data: s });
     }
@@ -119,7 +130,7 @@ class ListStudent extends React.Component {
   };
 
   handleSelectClass(frequency) {
-    let s = this.state.students.filter(d => d.level === frequency);
+    let s = this.state.students.filter(d => d.student.level === frequency);
     this.setState({ data: s, lastdata: s });
   }
 
@@ -153,6 +164,7 @@ class ListStudent extends React.Component {
   };
 
   handleOk = async () => {
+    const {students} = this.props
     if (this.state.message) {
       this.setState({
         saving: true,
@@ -162,13 +174,21 @@ class ListStudent extends React.Component {
 
       let studentIds = this.state.all ? this.state.studentIds : this.state.selectedRowKeys;
 
-      apiRemote.post('/api/smsntification/carrier', {
+      const filteredRecords = students.filter(record => studentIds.includes(record.studentId));
+
+      // Extract the carier.contact values and create a new list
+      const idContactPairs = filteredRecords.map(record => ({
+        id: record.studentId,
+        contact: record.student.carier.contact
+      }));
+     
+      await apiRemote.post('/api/smsntification/carrier', {
         message: this.state.message,
-        studentIds,
+        idContactPairs,
         sucursalId: JSON.parse(localStorage.getItem(SUCURSAL)).id,
       });
 
-      await notification.success({
+      notification.success({
         description: 'Notificação enviada com sucesso',
         message: 'Notificação enviada com sucesso',
       });
@@ -178,6 +198,7 @@ class ListStudent extends React.Component {
         all: false,
         visible: false,
       });
+       
     }
   };
 
@@ -200,6 +221,7 @@ class ListStudent extends React.Component {
 
   renderSimpleForm() {
     const { form } = this.props;
+    const {frequencies} = this.props;
     const { getFieldDecorator } = this.props.form;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
@@ -407,10 +429,12 @@ class ListStudent extends React.Component {
   };
 
   componentDidMount() {
-    this.searchFields();
 
-    this.setState({ sync: true });
-    this.searchNotifications();
+    const pagination = { ...this.state.pagination };
+    pagination.total = this.students.length;
+    pagination.pageSize = pageSize;
+    let studentIds = this.students.map(s => s.student.id);
+    this.searchFields();
   }
 
   searchNotifications() {
@@ -433,52 +457,52 @@ class ListStudent extends React.Component {
   }
 
   searchFields() {
-    api
-      .get('/api/registration/current/' + JSON.parse(localStorage.getItem(SUCURSAL)).id)
-      .then(res => {
-        const pagination = { ...this.state.pagination };
-        pagination.total = res.data.length;
-        pagination.pageSize = pageSize;
+    const pagination = { ...this.state.pagination };
+    pagination.total = this.students.length;
+    pagination.pageSize = pageSize;
+    let studentIds = this.students.map(s => s.id);
 
-        let studentIds = res.data.map(s => s.studentNumber);
-        this.setState({
-          studentIds,
-          originaldata: res.data,
-          data: res.data,
-          students: res.data,
-          lastdata: res.data,
-          loadign: false,
-          pagination,
-        });
-      });
+
+    this.setState({
+      studentIds,
+      originaldata:this.students,
+      data: this.students,
+      students: this.students,
+      lastdata: this.students,
+      loadign: false,
+      pagination,
+    });
+  
   }
 
   render() {
+    const {frequencies} = this.props
+    console.log('Frequencies: ',frequencies)
     const columns = [
-      { title: 'Nome', dataIndex: 'name', key: 'name', render: text => <a>{text}</a> },
-      { title: 'Data de Nacimento', dataIndex: 'birthDate', key: 'birthDate' },
+      { title: 'Nome', dataIndex: 'name', key: 'name', render: (_, record) =><a>{record.student.name}</a> },
+      { title: 'Data de Nacimento', dataIndex: 'birthDate', key: 'birthDate' , render: (_, record) =><a>{record.student.birthDate}</a>},
       {
         title: 'Nível',
         dataIndex: 'level',
         key: 'level',
         render: (_, record) => (
-          <Text>{frequencies.filter(frq => frq.level === record.level)[0].description}</Text>
+          <Text>{!frequencies?'':frequencies.filter(frq => frq.level+"" == ""+record.student.level)[0].description}</Text>
         ),
       },
       {
         title: 'Data de Inscrição',
         dataIndex: 'createdAt',
         key: 'createdAt',
-        render: (_, record) => <Text>{moment(record.createdAt).format('YYYY-MM-DD')}</Text>,
+        render: (_, record) => <Text>{record.createdAt}</Text>,
       },
       {
         title: '',
         key: 'operation',
         render: (text, record) => (
           <span>
-            <a onClick={this.editStudent.bind(this, record)}>Editar</a>
+            <a onClick={this.editStudent.bind(this, record.student)}>Editar</a>
             <Divider type="vertical"></Divider>
-            <a onClick={this.handleAnull.bind(this, record)}>Anular Inscrição</a>
+            <a onClick={this.handleAnull.bind(this, record.student)}>Anular Inscrição</a>
           </span>
         ),
       },
@@ -568,8 +592,8 @@ class ListStudent extends React.Component {
                   onSelectChange={this.onSelectChange}
                   columnTitle="Seleccionar Todos"
                   rowSelection={rowSelection}
-                  rowKey={record => record.studentNumber}
-                  loading={this.state.loadign}
+                  rowKey={record => record.student.id}
+                  loading={this.loadign}
                   onSelectAll={this.onSelectAll}
                   expandedRowRender={record => (
                     <div style={{ marginBottom: 10, marginTop: 32 }}>
@@ -578,23 +602,23 @@ class ListStudent extends React.Component {
                         column={2}
                         className={styles.information}
                       >
-                        <Descriptions.Item label="Nome Completo">{record.name}</Descriptions.Item>
+                        <Descriptions.Item label="Nome Completo">{record.student.name}</Descriptions.Item>
                         <Descriptions.Item label="Data de Nascimento">
                           {record.birthDate}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Sexo">{record.sex}</Descriptions.Item>
+                        <Descriptions.Item label="Sexo">{record.student.sex}</Descriptions.Item>
                         <Descriptions.Item label="Alérgico aos medicamentos">
-                          {record.alergicToMedicine}
+                          {record.student.alergicToMedicine}
                         </Descriptions.Item>
                         <Descriptions.Item label="Alérgico a comida">
-                          {record.alergicToFood}
+                          {record.student.alergicToFood}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Morada">{record.address}</Descriptions.Item>
+                        <Descriptions.Item label="Morada">{record.student.address}</Descriptions.Item>
                         <Descriptions.Item label="Tipo de Documento">
-                          {record.docType}
+                          {record.student.docType}
                         </Descriptions.Item>
                         <Descriptions.Item label="Nr. de Documento">
-                          {record.docNumber}
+                          {record.student.docNumber}
                         </Descriptions.Item>
                       </Descriptions>
                       <Divider style={{ marginBottom: 10 }} column={2} />
@@ -604,16 +628,16 @@ class ListStudent extends React.Component {
                         className={styles.information}
                       >
                         <Descriptions.Item label="Nome do Pai">
-                          {record.fatherName}
+                          {record.student.fatherName}
                         </Descriptions.Item>
                         <Descriptions.Item label="Contacto do Pai">
-                          {record.fatherContact}
+                          {record.student.fatherContact}
                         </Descriptions.Item>
                         <Descriptions.Item label="Nome da Mãe">
-                          {record.motherName}
+                          {record.student.motherName}
                         </Descriptions.Item>
                         <Descriptions.Item label="Contacto da Mãe">
-                          {record.motherContact}
+                          {record.student.motherContact}
                         </Descriptions.Item>
                       </Descriptions>
                       <Divider style={{ marginBottom: 10 }} />
@@ -624,14 +648,14 @@ class ListStudent extends React.Component {
                         className={styles.information}
                       >
                         <Descriptions.Item label="Grau de Parentesco">
-                          {record.carier.kinshipDegree}
+                          {record.student.carier.kinshipDegree}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Nome">{record.carier.name}</Descriptions.Item>
+                        <Descriptions.Item label="Nome">{record.student.carier.name}</Descriptions.Item>
                         <Descriptions.Item label="Contacto">
-                          {record.carier.contact}
+                          {record.student.carier.contact}
                         </Descriptions.Item>
                         <Descriptions.Item label="Local de Trabalho">
-                          {record.carier.workPlace}
+                          {record.student.carier.workPlace}
                         </Descriptions.Item>
                       </Descriptions>
                       <Divider style={{ marginBottom: 10 }} />
@@ -642,10 +666,10 @@ class ListStudent extends React.Component {
                         className={styles.information}
                       >
                         <Descriptions.Item label="Frequência">
-                          {frequencies.filter(frq => frq.level === record.level)[0].description}
+                          {frequencies.filter(frq => frq.level == record.student.level)[0].description}
                         </Descriptions.Item>
                         <Descriptions.Item label="Valor Mensal">
-                          <Statistic value={record.currentMonthlyPayment} suffix="MZN" />
+                          <Statistic value={record.monthlyPayment} suffix="MZN" />
                         </Descriptions.Item>
                       </Descriptions>{' '}
                     </div>
@@ -716,4 +740,4 @@ class ListStudent extends React.Component {
     );
   }
 }
-export default Form.create({})(ListStudent);
+export default  Form.create({})(ListStudent);

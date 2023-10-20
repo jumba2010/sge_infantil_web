@@ -8,6 +8,8 @@ import { notification } from 'antd';
 import api from '../../../services/api';
 import moment from 'moment';
 import styles from './index.less';
+
+import { SUCURSAL } from '../../../services/auth';
 const FormItem = Form.Item;
 const pageSize=6;
 const menu = (
@@ -53,8 +55,9 @@ class ListStudent extends React.Component {
   }
 
   componentWillMount() {    
-    api.get('/api/profile')
-        .then(res => {         
+    api.get('/api/profile/'+ JSON.parse(localStorage.getItem(SUCURSAL)).id)
+        .then(res => {   
+          console.log(res.data)      
           this.setState({profiles:res.data});           
         })
   
@@ -203,7 +206,7 @@ this.searchFields();
         } 
 
        searchFields(){
-          api.get('/api/user/all')
+          api.get('/api/user/all/'+ JSON.parse(localStorage.getItem(SUCURSAL)).id)
         .then(res => {  
           const pagination={...this.state.pagination};
           pagination.total=res.data.length

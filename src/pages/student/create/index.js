@@ -27,6 +27,7 @@ import moment from 'moment';
 import { notification } from 'antd';
 import api from './../../../services/api';
 import { USER_KEY, SUCURSAL } from './../../../services/auth';
+import { connect } from 'dva';
 const { Step } = Steps;
 const { TextArea } = Input;
 const { Content, Sider } = Layout;
@@ -86,6 +87,9 @@ function getBase64(img, callback) {
   reader.readAsDataURL(img);
 }
 
+@connect(({ student, loading }) => ({
+  frequencies: student.frequencies,
+}))
 class Student extends React.Component {
   constructor(props) {
     super(props);
@@ -187,6 +191,8 @@ class Student extends React.Component {
     this.handleSelectDiscount = this.handleSelectDiscount.bind(this);
     this.handleSelectPaymentType = this.handleSelectPaymentType.bind(this);
     this.handleSelectClass = this.handleSelectClass.bind(this);
+    this.handleApiCallback = this.handleApiCallback.bind(this);
+    this.handleStudentCreationCallBack = this.handleStudentCreationCallBack.bind(this);
   }
 
   beforeUpload(file) {
@@ -225,7 +231,8 @@ class Student extends React.Component {
   }
 
   changeNeedSpecialHour(e) {
-    let freq = JSON.parse(localStorage.getItem('FREQUENCIES')).filter(
+    const {frequencies} = this.props.frequencies;
+    let freq = frequencies.filter(
       f => f.level === this.state.frequency,
     )[0];
     let paymentValue = freq.monthlyPayment;
@@ -247,7 +254,8 @@ class Student extends React.Component {
   }
 
   handleSelectClass(frequency) {
-    let freq = JSON.parse(localStorage.getItem('FREQUENCIES')).filter(
+    const {frequencies} = this.props;
+    let freq = frequencies.filter(
       f => f.level === frequency,
     )[0];
     let registrationValue = this.state.isNew
@@ -338,6 +346,59 @@ class Student extends React.Component {
     this.setState({ current });
   }
 
+
+handleApiCallback (resp)  {
+    let registrationId = resp.data.id;
+    console.log('registrationId', registrationId);
+    this.props.dispatch({
+      type: 'student/fetchActiveStudents'
+    });
+
+    const current = this.state.current + 1;
+    this.setState({ current, issaving: false });
+    localStorage.removeItem('LAST_STUDENT');
+    window.scrollTo(0, 0);
+
+  }
+
+ async  handleStudentCreationCallBack(res) {
+    let createdStudent =res.data;
+    let loggedUser = JSON.parse(localStorage.getItem(USER_KEY));
+    let sucursal = JSON.parse(localStorage.getItem(SUCURSAL));
+    console.log('createdStudent',createdStudent.id)
+    let {
+      isNew,
+      monthlyPayment,
+      registrationValue,
+      discount,
+      frequency,
+      needSpecialHour
+    } = this.state;
+
+    let  re =  await api
+    .post('/api/registration', {
+      monthlyPayment,
+      totalPaid: registrationValue,
+      discount,
+      studentId: createdStudent.id,
+      student:createdStudent,
+      isNew,
+      year: 2020,
+      sucursal: sucursal,
+      classId: frequency,
+      createdBy: loggedUser.id,
+      activatedBy: loggedUser.id,
+    })
+    .then(this.handleApiCallback)
+    .catch(function(error) {
+      console.log(error)
+      notification.error({
+        description: 'Erro ao Processar o o seu pedido',
+        message: 'Erro ao processar o pedido',
+      });
+    });
+  }
+
   confirmTransaction = async () => {
     window.scrollTo(0, 0);
     this.setState({ issaving: true });
@@ -370,6 +431,16 @@ class Student extends React.Component {
       alergicToFood,
       alergicToMedicine,
     } = this.state;
+
+  let carier =  {
+      name: carierName,
+      kinshipDegree,
+      contact: carierContact,
+      workPlace: workplace,
+      createdBy: loggedUser.id,
+      activatedBy: loggedUser.id,
+    }
+
     let s = await api
       .post('/api/student', {
         name,
@@ -390,58 +461,18 @@ class Student extends React.Component {
         motherName,
         fatherName,
         picture,
+        carier,
         sucursalId: sucursal.id,
         createdBy: loggedUser.id,
         activatedBy: loggedUser.id,
-      })
+      }).then(this.handleStudentCreationCallBack)
       .catch(function(error) {
+        console.log('User',error)
         notification.error({
           description: 'Erro ao Processar o seu pedido',
           message: 'Erro ao processar o pedido',
         });
       });
-
-    await api
-      .post('/api/carier', {
-        name: carierName,
-        kinshipDegree,
-        contact: carierContact,
-        workPlace: workplace,
-        studentId: s.data.id,
-        createdBy: loggedUser.id,
-        activatedBy: loggedUser.id,
-      })
-      .catch(function(error) {
-        notification.error({
-          description: 'Erro ao processar o o seu pedido',
-          message: 'Erro ao processar o pedido',
-        });
-      });
-
-    await api
-      .post('/api/registration', {
-        monthlyPayment,
-        totalPaid: registrationValue,
-        discount,
-        studentId: s.data.id,
-        isNew,
-        year: 2020,
-        sucursal: sucursal,
-        classId: frequency,
-        createdBy: loggedUser.id,
-        activatedBy: loggedUser.id,
-      })
-      .catch(function(error) {
-        notification.error({
-          description: 'Erro ao Processar o o seu pedido',
-          message: 'Erro ao processar o pedido',
-        });
-      });
-
-    const current = this.state.current + 1;
-    this.setState({ current, issaving: false });
-    localStorage.removeItem('LAST_STUDENT');
-    window.scrollTo(0, 0);
   };
 
   next1() {
@@ -605,6 +636,7 @@ class Student extends React.Component {
 
   render() {
     const { current } = this.state;
+    const {frequencies} = this.props;
     const { getFieldDecorator } = this.props.form;
     const uploadButton = (
       <div>
@@ -1159,7 +1191,7 @@ class Student extends React.Component {
                         option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }
                     >
-                      {JSON.parse(localStorage.getItem('FREQUENCIES')).map(f => (
+                      {frequencies.map(f => (
                         <Option value={f.level}>{f.description}</Option>
                       ))}
                     </Select>,
@@ -1314,7 +1346,7 @@ class Student extends React.Component {
                 >
                   <Descriptions.Item label="Frequência">
                     {
-                      JSON.parse(localStorage.getItem('FREQUENCIES')).filter(
+                      frequencies.filter(
                         f => f.level == this.state.frequency,
                       )[0].description
                     }

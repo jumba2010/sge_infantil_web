@@ -27,6 +27,7 @@ import api, { baseURL } from '../../../services/api';
 import { USER_KEY, SUCURSAL } from '../../../services/auth';
 import moment from 'moment';
 import months from '../../../utils/months';
+import {getLastThreeYears} from './../../utils/DateTimeUtils'
 const FormItem = Form.Item;
 const pageSize = 6;
 import styles from './index.less';
@@ -49,8 +50,8 @@ class Paid extends React.Component {
 
     this.handleChangeInput = this.handleChangeInput.bind(this);
     this.handleSelectClass = this.handleSelectClass.bind(this);
+    this.handleSelectYear = this.handleSelectYear.bind(this);
     this.handleSelectMonth = this.handleSelectMonth.bind(this);
-    this.handleChangeFererence = this.handleChangeFererence.bind(this);
   }
   handleCancel = () => {
     this.setState({ visible: false });
@@ -59,37 +60,57 @@ class Paid extends React.Component {
   handleFormReset = () => {
     const { form, dispatch } = this.props;
     form.resetFields();
-    this.searchFields();
+    this.setState({
+      filterName: '',
+      filterYear: '',
+      filterMonth: '',
+      filterLevel: '',
+      data:this.state.lastdata
+    });
   };
-
-  handleChangeInput(evt) {
-    if (evt.target.name === 'name') {
-      let s = this.state.lastdata.filter(
-        d => d.name.toLowerCase().indexOf(evt.target.value.toLowerCase()) > -1,
-      );
-      this.setState({ data: s });
-    }
+  handleChangeInput(event) {
+    this.setState({ filterName: event.target.value }, () => {
+      this.filterData();
+    });
   }
-
-  handleChangeFererence(ref) {
-    let s = this.state.lastdata.filter(d => d.code.indexOf(ref) > -1);
-    this.setState({ data: s });
+  
+  handleSelectYear(year) {
+    this.setState({ filterYear: year }, () => {
+      this.filterData();
+    });
   }
-  cls;
-
-  handleSelectClass(frequency) {
-    let freq = JSON.parse(localStorage.getItem('FREQUENCIES')).filter(
-      frq => frq.level === frequency,
-    )[0];
-    let s = this.state.lastdata.filter(d => d.frequency === freq.description);
-    this.setState({ data: s });
-  }
-
+  
   handleSelectMonth(month) {
-    let s = this.state.lastdata.filter(d => d.month === month);
-    this.setState({ data: s });
+    this.setState({ filterMonth: month }, () => {
+      this.filterData();
+    });
   }
+  
+  handleSelectClass(level) {
+    this.setState({ filterLevel: level }, () => {
+      this.filterData();
+    });
+  }
+  
+  filterData() {
+    let filteredData = this.state.lastdata;
+    if (this.state.filterName) {
+      filteredData = filteredData.filter(d => d.name.includes(this.state.filterName));
+    }
 
+    if (this.state.filterYear) {
+      filteredData = filteredData.filter(d => d.year === this.state.filterYear);
+    }
+    if (this.state.filterMonth) {
+      filteredData = filteredData.filter(d => d.month === this.state.filterMonth);
+    }
+    if (this.state.filterLevel) {
+      let freq = JSON.parse(localStorage.getItem('FREQUENCIES')).filter(frq => frq.level === this.state.filterLevel)[0];
+      filteredData = filteredData.filter(d => d.frequency === freq.description);
+    }
+    this.setState({ data: filteredData });
+  }
+  
   payNow(payment) {
     this.props.history.push('/payment/pay/confirm/' + payment.key);
   }
@@ -152,12 +173,12 @@ class Paid extends React.Component {
           <Col md={8} sm={24}>
             <FormItem label="Ano">
               {getFieldDecorator('year', {
-                initialValue: new Date().getFullYear(),
+                initialValue: '',
                 rules: [{ required: false }],
               })(
-                <Select placeholder="Ano.." style={{ width: '100%' }}>
-                  <Option value={new Date().getFullYear()}>{new Date().getFullYear()}</Option>
-                </Select>,
+                <Select  onChange={this.handleSelectYear} placeholder="Ano.." style={{ width: '70%' }}>            
+             {getLastThreeYears().map(year=><Option value={year}>{year}</Option>  )}          
+            </Select>,
               )}
             </FormItem>
           </Col>

@@ -6,9 +6,10 @@ import api from './../../../services/api';
 import { USER_KEY,SUCURSAL } from "./../../../services/auth";
 import './index.less';
 import { Label } from 'bizcharts';
-
+import { connect } from 'dva';
 
 const EditableContext = React.createContext();
+
 
 class EditableCell extends React.Component {
   getInput = () => {
@@ -56,6 +57,9 @@ class EditableCell extends React.Component {
   }
 }
 
+@connect(({ student, loading }) => ({
+  frequencies: student.frequencies,
+}))
 class EditableTable extends React.Component {
 
    constructor(props) {
@@ -150,6 +154,15 @@ class EditableTable extends React.Component {
         await api.put("/api/frequency/"+item.key, {recurigRegistrationValue:row.recurigRegistrationValue,specialHourMonthlyValue:row.specialHourMonthlyValue,
           registrationValue:row.registrationValue,monthlyPayment:row.monthlyPayment,updatedBy:1
         })
+        .then( data => {
+          this.props.dispatch({
+            type: 'student/fetchFrequencies'
+          });
+          
+        this.setState({ data: newData, editingKey: '' ,loading:false});
+        notification.open({message:'Taxa actualizada com sucesso!',type:'success', top:100})
+
+        })
         .catch(function (error) { 
           notification.error({
               description:'Erro ao Processar o o seu pedido',
@@ -157,8 +170,6 @@ class EditableTable extends React.Component {
             });     
         });
 
-        this.setState({ data: newData, editingKey: '' ,loading:false});
-        notification.open({message:'Taxa actualizada com sucesso!',type:'success', top:100})
       } else {
         newData.push(row);
         this.setState({ data: newData, editingKey: '' });
@@ -171,23 +182,20 @@ class EditableTable extends React.Component {
   }
 
   componentDidMount() {
-    api.get('/api/frequency/'+JSON.parse(localStorage.getItem(SUCURSAL)).id)
-        .then(res => {    
-          
-          const data = [];
-          for (let i = 0; i < res.data.length; i++) {   
-            data.push({
-              key: res.data[i].id,
-              level: res.data[i].description,
-              registrationValue: res.data[i].registrationValue,
-              recurigRegistrationValue: res.data[i].recurigRegistrationValue,
-              monthlyPayment: res.data[i].monthlyPayment,
-              specialHourMonthlyValue: res.data[i].specialHourMonthlyValue,
-            });
-          }  
+    const {frequencies} = this.props;
+    const data = [];
+    for (let i = 0; i < frequencies.length; i++) {   
+      data.push({
+        key: frequencies[i].id,
+        level: frequencies[i].description,
+        registrationValue: frequencies[i].registrationValue,
+        recurigRegistrationValue: frequencies[i].recurigRegistrationValue,
+        monthlyPayment: frequencies[i].monthlyPayment,
+        specialHourMonthlyValue: frequencies[i].specialHourMonthlyValue,
+      });
+    }  
 
-               this.setState({data});           
-        })
+    this.setState({data});  
  
         }
 

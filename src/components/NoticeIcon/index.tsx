@@ -1,4 +1,4 @@
-import { Badge, Icon, Spin, notification,Tabs,Tag } from 'antd';
+import { Badge, Icon, Spin,Tabs,Tag } from 'antd';
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import NoticeList, { NoticeIconTabProps } from './NoticeList';
@@ -7,8 +7,6 @@ import { SUCURSAL } from "../../services/auth";
 import moment from 'moment';
 import HeaderDropdown from '../HeaderDropdown';
 import styles from './index.less';
-import socketIOClient from "socket.io-client";
-const socket = socketIOClient(baseURL);
 const months=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
 const { TabPane } = Tabs;
@@ -65,33 +63,11 @@ export default class NoticeIcon extends Component<NoticeIconProps> {
   };
 
   componentWillMount =async()=> { 
-  
-    socket.on("finish", data => {
-      notification.success({
-        description:'Dados Sincronizados com sucesso',
-        message: 'Todos os Dados foram Sincronizados',
-      });  
-
-localStorage.removeItem('SYNCTOCLOUD');
-
-    });
-
-    socket.on("error", data => {
-      notification.error({
-        description:'Erro ao sincronizar Dados',
-        message: 'Houve erros ao sincronizar Dados, por favor volte a tentar',
-      });  
-
-localStorage.removeItem('SYNCTOCLOUD');
-
-    });
-
 
     api.get(`/api/payment/unpaid/${localStorage.getItem(SUCURSAL) && localStorage.getItem(SUCURSAL)!='undefined'?JSON.parse(localStorage.getItem(SUCURSAL)).id:'1'}`)
     .then(res => { 
       const newNotices = res.data?res.data.map(payment => {
         const newNotice = { ...payment };
-     console.log(payment)
         newNotice.title=payment.student.name;
         newNotice.avatar='foto';
         newNotice.read=false;

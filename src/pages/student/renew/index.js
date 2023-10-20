@@ -153,6 +153,12 @@ class RenewStudent extends React.Component {
     this.setState({ data: s, lastdata: s });
   }
 
+  handleSelectYear(year) {
+    let s=this.state.lastdata.filter(d=>d.year===year);
+    this.setState({data:s});
+
+  }
+
   changePayFirstMonth(e) {
     let total = e.target.checked
       ? this.state.recurigRegistrationValue + this.state.monthlyPayment
@@ -426,23 +432,23 @@ class RenewStudent extends React.Component {
   }
 
   searchFields() {
-    console.log('Sucursal',localStorage.getItem(SUCURSAL).id)
-    api.get('/api/frequency/' + localStorage.getItem(SUCURSAL).id).then(res => {
+    console.log('Sucursal',JSON.parse(localStorage.getItem(SUCURSAL)))
+    let sucursalId=JSON.parse(localStorage.getItem(SUCURSAL)).id
+    api.get('/api/frequency/' +sucursalId).then(res => {
       this.setState({
         frequencies: res.data
       })
-      console.log(localStorage.getItem(SUCURSAL).id,res.data)
     });
 
     
     api
-      .get('/api/student/unrenewd/sucursal/' + JSON.parse(localStorage.getItem(SUCURSAL)).id)
+      .get('/api/student/unrenewd/sucursal/' +sucursalId)
       .then(res => {
         const pagination = { ...this.state.pagination };
         pagination.total = res.data.length;
         pagination.pageSize = pageSize;
 
-        let studentIds = res.data.map(s => s.studentNumber);
+        let studentIds = res.data.map(s => s.id);
         this.setState({
           studentIds,
           originaldata: res.data,
@@ -464,7 +470,7 @@ class RenewStudent extends React.Component {
         dataIndex: 'level',
         key: 'level',
         render: (_, record) => (
-          <Text>{this.state.frequencies.filter(frq => frq.level === record.level)[0].description}</Text>
+          <Text>{this.state.frequencies && this.state.frequencies.length>0?this.state.frequencies.filter(frq => frq.level === record.level)[0].description:''}</Text>
         ),
       },
       {
@@ -485,7 +491,7 @@ class RenewStudent extends React.Component {
 
     const hasSelected = this.state.selectedRowKeys.length > 0;
     const { getFieldDecorator } = this.props.form;
-    const selectedStudent = this.state.data.filter(s => s.studentNumber == selectedRowKeys[0])[0];
+    const selectedStudent = this.state.data.filter(s => s.id == selectedRowKeys[0])[0];
     const freq = this.state.frequencies.filter(
       f => f.level == (selectedStudent ? selectedStudent.level + 1 : 1),
     )[0];
