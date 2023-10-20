@@ -56,7 +56,7 @@ router.push(`/`);
     return isAuthenticated ? (
       <HeaderDropdown overlay={menuHeaderDropdown}>
         <span className={`${styles.action} ${styles.account}`}>
-          <Avatar size="small" className={styles.avatar} src={`https://storage.googleapis.com/nacoesparacristomedia/blank-user.png`} alt="avatar" />
+          <Avatar size="small" className={styles.avatar} src={`blank-user.png`} alt="avatar" />
           <span className={styles.name}>{localStorage.getItem(USER_KEY)?JSON.parse(localStorage.getItem(USER_KEY)).name:''}</span>
         </span>
       </HeaderDropdown>
