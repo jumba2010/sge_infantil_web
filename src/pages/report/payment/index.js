@@ -68,7 +68,7 @@ class Pay extends React.Component {
 
   handleSelectMonth= (month)=>{
     this.setState({loadign:true,data:[]})
-    api.get('/api/payment/count/'+JSON.parse(localStorage.getItem(SUCURSAL)).id+'/2020/'+month).then(res => {
+    api.get('/api/payment/count/'+JSON.parse(localStorage.getItem(SUCURSAL)).id+`/${new Date().getFullYear()}/`+month).then(res => {
       const data = []; 
 
    for (let index = 0; index < res.data.length; index++) {
@@ -94,9 +94,9 @@ class Pay extends React.Component {
 
     const {paymentMethod,receiptNumber}=this.state;
   
-if(paymentMethod && receiptNumber){
+    if(paymentMethod && receiptNumber){
  
-  this.setState({success:true})
+   this.setState({success:true})
 }
 
   }
@@ -107,9 +107,8 @@ if(paymentMethod && receiptNumber){
   }
 
   componentDidMount() {
-
-    if(months.length<13){
-months.push({code:'0',desc:'Todos'},)
+  if(months.length<13){
+  months.push({code:'0',desc:'Todos'},)
 }
         }
 
@@ -137,12 +136,12 @@ months.push({code:'0',desc:'Todos'},)
        <Form onSubmit={this.handleSearch} layout="inline">
        <Row >
           <FormItem label="Ano"> 
-          {getFieldDecorator('year', {initialValue:'2020',
+          {getFieldDecorator('year', {initialValue:`${new Date().getFullYear()}`,
             rules: [{ required: false }],
           })(
                 <Select style={{ width: '200px' }} onChange={this.handleSelectClass} >
 
-                <Option value="2020">2020</Option>
+                <Option value={`${new Date().getFullYear()}`}>`${new Date().getFullYear()}`</Option>
                  
           </Select>)}</FormItem>
       

@@ -10,7 +10,7 @@ export async function findUnpaidPayments() {
 
 export async function findPaidPayments() {
   return await API.get(
-    baseURL + `api/payment/paid/${JSON.parse(localStorage.getItem(SUCURSAL)).id}/${this.state.year}`
+    baseURL + `api/payment/paid/${JSON.parse(localStorage.getItem(SUCURSAL)).id}`
   );
 }
 

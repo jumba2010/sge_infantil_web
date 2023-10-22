@@ -49,7 +49,6 @@ const SutudentModel = {
 
   reducers: {
     queryActiveStudents(state, action) {
-      console.log('Returning registrations:',action)
       return {
         ...state,
         students: action.payload || {},

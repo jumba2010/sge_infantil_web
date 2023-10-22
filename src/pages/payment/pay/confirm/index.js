@@ -75,6 +75,15 @@ if(paymentMethod && receiptNumber){
       this.props.dispatch({
         type: 'student/fetchActiveStudents'
       });
+
+      this.props.dispatch({
+        type: 'payment/fetchUnpaidPayments',
+      });
+
+      this.props.dispatch({
+        type: 'payment/fetchPaidPayments',
+      });
+
       // this.props.dispatch({
       //   type: 'student/addStudent',
       //   payload: { registrationId: registrationId },

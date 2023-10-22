@@ -2,13 +2,12 @@ import { Badge, Icon, Spin,Tabs,Tag } from 'antd';
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import NoticeList, { NoticeIconTabProps } from './NoticeList';
-import api,{baseURL} from '../../services/api';
-import { SUCURSAL } from "../../services/auth";
+
 import moment from 'moment';
 import HeaderDropdown from '../HeaderDropdown';
 import styles from './index.less';
 const months=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-
+import { connect } from 'dva';
 const { TabPane } = Tabs;
 
 export interface NoticeIconData {
@@ -40,6 +39,10 @@ export interface NoticeIconProps {
   children: React.ReactElement<NoticeIconTabProps>[];
 }
 
+@connect(({ payment, student }) => ({
+  unpaidPayments: payment.unpaidPayments,
+  frequencies:student.frequencies
+}))
 export default class NoticeIcon extends Component<NoticeIconProps> {
   public static Tab: typeof NoticeList = NoticeList;
 
@@ -63,36 +66,32 @@ export default class NoticeIcon extends Component<NoticeIconProps> {
   };
 
   componentWillMount =async()=> { 
+const {unpaidPayments} = this.props;
+    const newNotices = unpaidPayments?unpaidPayments.map(payment => {
+      const newNotice = { ...payment };
+      newNotice.title=payment.student.name;
+      newNotice.avatar='foto';
+      newNotice.read=false;
+      newNotice.status='urgent';
+      newNotice.description='Pagamento atrasado referente ao Mês '+months[payment.month-1]+' de '+payment.year;
+        newNotice.datetime =( <div style={{ color: 'red' }}>{moment(payment.limitDate).fromNow()}</div>);      
+        newNotice.key = newNotice.id;
+         const color = {
+          todo: '',
+          processing: 'blue',
+          urgent: 'red',
+          doing: 'gold',
+        }[newNotice.status];
+        newNotice.extra = (
+          <Tag color={color} style={{ marginRight: 0 }}>
+            {newNotice.extra}
+          </Tag>
+        );
+      
+      return newNotice;
+    }):[];
 
-    api.get(`/api/payment/unpaid/${localStorage.getItem(SUCURSAL) && localStorage.getItem(SUCURSAL)!='undefined'?JSON.parse(localStorage.getItem(SUCURSAL)).id:'1'}`)
-    .then(res => { 
-      const newNotices = res.data?res.data.map(payment => {
-        const newNotice = { ...payment };
-        newNotice.title=payment.student.name;
-        newNotice.avatar='foto';
-        newNotice.read=false;
-        newNotice.status='urgent';
-        newNotice.description='Pagamento atrasado referente ao Mês '+months[payment.month-1]+' de '+payment.year;
-          newNotice.datetime =( <div style={{ color: 'red' }}>{moment(payment.limitDate).fromNow()}</div>);      
-          newNotice.key = newNotice.id;
-           const color = {
-            todo: '',
-            processing: 'blue',
-            urgent: 'red',
-            doing: 'gold',
-          }[newNotice.status];
-          newNotice.extra = (
-            <Tag color={color} style={{ marginRight: 0 }}>
-              {newNotice.extra}
-            </Tag>
-          );
-        
-        return newNotice;
-      }):[];
-
-this.setState({count:res.data.length,list:newNotices});
-
-     });
+this.setState({count:unpaidPayments.length,list:newNotices});
     
         } 
 

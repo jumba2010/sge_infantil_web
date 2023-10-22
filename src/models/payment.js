@@ -15,7 +15,7 @@ const PaymentModel = {
       const response = yield call(findPaidPayments);
       yield put({
         type: 'queryPaidPayments',
-        payload: response,
+        payload: response.data,
       });
     },
  
@@ -24,7 +24,7 @@ const PaymentModel = {
       console.log('Returning response payment',response)
       yield put({
         type: 'queryUnpaidPayments',
-        payload: response,
+        payload: response.data,
       });
     },
 

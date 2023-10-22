@@ -60,17 +60,17 @@ class Analysis extends Component<
   componentDidMount() {
     const { dispatch } = this.props;
     this.reqRef = requestAnimationFrame(() => {
-      dispatch({
-        type: 'dashboardAndanalysis/fetch',
-      });
+      // dispatch({
+      //   type: 'dashboardAndanalysis/fetch',
+      // });
     });
   }
 
   componentWillUnmount() {
     const { dispatch } = this.props;
-    dispatch({
-      type: 'dashboardAndanalysis/clear',
-    });
+    // dispatch({
+    //   type: 'dashboardAndanalysis/clear',
+    // });
     cancelAnimationFrame(this.reqRef);
     clearTimeout(this.timeoutId);
   }
@@ -93,9 +93,9 @@ class Analysis extends Component<
       rangePickerValue,
     });
 
-    dispatch({
-      type: 'dashboardAndanalysis/fetchSalesData',
-    });
+    // dispatch({
+    //   type: 'dashboardAndanalysis/fetchSalesData',
+    // });
   };
 
   selectDate = (type: 'today' | 'week' | 'month' | 'year') => {
@@ -104,9 +104,9 @@ class Analysis extends Component<
       rangePickerValue: getTimeDistance(type),
     });
 
-    dispatch({
-      type: 'dashboardAndanalysis/fetchSalesData',
-    });
+    // dispatch({
+    //   type: 'dashboardAndanalysis/fetchSalesData',
+    // });
   };
 
   isActive = (type: 'today' | 'week' | 'month' | 'year') => {

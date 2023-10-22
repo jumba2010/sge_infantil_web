@@ -28,9 +28,16 @@ import { USER_KEY, SUCURSAL } from '../../../services/auth';
 import moment from 'moment';
 import months from '../../../utils/months';
 import {getLastThreeYears} from './../../utils/DateTimeUtils'
+import { connect } from 'dva';
+
 const FormItem = Form.Item;
 const pageSize = 6;
 import styles from './index.less';
+
+@connect(({ payment, student }) => ({
+  paidPayments: payment.paidPayments,
+  frequencies:student.frequencies
+}))
 class Paid extends React.Component {
   constructor(props) {
     super(props);
@@ -223,41 +230,41 @@ class Paid extends React.Component {
   };
 
   componentWillMount() {
+    this.props.dispatch({
+      type: 'payment/fetchPaidPayments',
+    });
     this.searchFields();
   }
 
   searchFields() {
-    api
-      .get(`/api/payment/paid/${JSON.parse(localStorage.getItem(SUCURSAL)).id}/${this.state.year}`)
-      .then(res => {
-        const pagination = { ...this.state.pagination };
-        pagination.total = res.data.length;
-        pagination.pageSize = pageSize;
+    const { paidPayments, frequencies } = this.props
+    const pagination = { ...this.state.pagination };
+    pagination.total = paidPayments.length;
+    pagination.pageSize = pageSize;
 
-        const data = [];
+    const data = [];
 
-        for (let i = 0; i < res.data.length; i++) {
-          let freq = JSON.parse(localStorage.getItem('FREQUENCIES')).filter(
-            frq => frq.level === res.data[i].student.level,
-          )[0];
-          let month = months.filter(m => m.code == res.data[i].month)[0].desc;
-          data.push({
-            key: res.data[i].id,
-            name: res.data[i].student.name,
-            year: res.data[i].year,
-            month: month,
-            discount: res.data[i].discount,
-            fine: res.data[i].fine,
-            total: res.data[i].total,
-            currentMonthlyPayment: res.data[i].student.currentMonthlyPayment,
-            code: res.data[i].code,
-            frequency: freq.description,
-            paymentDate: moment(res.data[i].paymentDate).format('YYYY-MM-DD'),
-          });
-        }
-
-        this.setState({ data, students: data, lastdata: data, loadign: false, pagination });
+    for (let i = 0; i < paidPayments.length; i++) {
+      let freq = frequencies.filter(
+        frq => frq.level === paidPayments[i].student.level,
+      )[0];
+      let month = months.filter(m => m.code == paidPayments[i].month)[0].desc;
+      data.push({
+        key: paidPayments[i].id,
+        name: paidPayments[i].student.name,
+        year: paidPayments[i].year,
+        month: month,
+        discount: paidPayments[i].discount,
+        fine: paidPayments[i].fine,
+        total: paidPayments[i].total,
+        currentMonthlyPayment: paidPayments[i].student.currentMonthlyPayment,
+        code: paidPayments[i].code,
+        frequency: freq.description,
+        paymentDate: moment(paidPayments[i].paymentDate).format('YYYY-MM-DD'),
       });
+    }
+
+    this.setState({ data, students: data, lastdata: data, loadign: false, pagination });
   }
 
   render() {
