@@ -78,9 +78,9 @@ class Pay extends React.Component {
       totalStudents: (res.data[index].studentsPaid+res.data[index].studentsUnPaid),
       month: month,
       studentPaid: res.data[index].studentsPaid,
-      totalPaid: res.data[index].paidValue.total,
+      totalPaid: res.data[index].paidValue,
       unpaidStudents: res.data[index].studentsUnPaid,
-      totalUnpaid:res.data[index].unPaidValue.total,  
+      totalUnpaid:res.data[index].unPaidValue,  
     });
      
    }
@@ -136,12 +136,12 @@ class Pay extends React.Component {
        <Form onSubmit={this.handleSearch} layout="inline">
        <Row >
           <FormItem label="Ano"> 
-          {getFieldDecorator('year', {initialValue:`${new Date().getFullYear()}`,
+          {getFieldDecorator('year', {initialValue:new Date().getFullYear(),
             rules: [{ required: false }],
           })(
                 <Select style={{ width: '200px' }} onChange={this.handleSelectClass} >
 
-                <Option value={`${new Date().getFullYear()}`}>`${new Date().getFullYear()}`</Option>
+                <Option value={`${new Date().getFullYear()}`}>{new Date().getFullYear()}</Option>
                  
           </Select>)}</FormItem>
       
