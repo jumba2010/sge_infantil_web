@@ -37,6 +37,9 @@ class GlobalHeaderRight extends Component<GlobalHeaderRightProps> {
         type: 'global/changeNoticeReadState',
         payload: id,
       });
+      dispatch({
+        type: 'payment/fetchUnpaidPayments',
+      });
     }
   };
 

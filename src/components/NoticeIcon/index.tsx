@@ -66,6 +66,7 @@ export default class NoticeIcon extends Component<NoticeIconProps> {
   };
 
   componentWillMount =async()=> { 
+
 const {unpaidPayments} = this.props;
     const newNotices = unpaidPayments?unpaidPayments.map(payment => {
       const newNotice = { ...payment };

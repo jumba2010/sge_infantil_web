@@ -100,7 +100,6 @@ class Login extends Component<LoginProps, LoginState> {
         dispatch({
           type: 'payment/fetchUnpaidPayments',
         });
-
   
       }
 
