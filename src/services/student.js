@@ -15,7 +15,6 @@ export async function findUnrenewedStudents() {
 }
 
 export async function findActiveStudentById(registrationId) {
-  console.log('Calling endpoint',registrationId)
   return  await API.get(
     baseURL + 'api/registration/' + registrationId,
   );

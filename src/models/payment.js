@@ -21,7 +21,6 @@ const PaymentModel = {
  
     *fetchUnpaidPayments(_, { call, put }) {
       const response = yield call(findUnpaidPayments);
-      console.log('Returning response payment',response)
       yield put({
         type: 'queryUnpaidPayments',
         payload: response.data,
@@ -39,8 +38,6 @@ const PaymentModel = {
     },
 
     queryUnpaidPayments(state, action) {
-
-      console.log('Returning response payment2',action.payload)
       return {
         ...state,
         unpaidPayments: action.payload || {},

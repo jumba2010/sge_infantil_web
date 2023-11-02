@@ -35,20 +35,6 @@ function desabledBirthDate(current){
   return current && current > moment().endOf('day');
 }
 
-function onChange(value) {
-  }
-  
-  function onBlur() {
-  }
-  
-  function onFocus() {
-
-  }
-  
-  function onSearch(val) {
-    console.log('search:', val);
-  }
-
 function getBase64(img, callback) {
     const reader = new FileReader();
     reader.addEventListener('load', () => callback(reader.result));
@@ -355,9 +341,7 @@ current==0?
     placeholder="Seleccione o .."
     optionFilterProp="children"
     onChange={this.handleSelectProfile}
-    onFocus={onFocus}
-    onBlur={onBlur}
-    onSearch={onSearch}
+
     filterOption={(input, option) =>
       option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
     }
@@ -376,7 +360,7 @@ current==0?
             rules: [{ required: true, message: 'Por favor informe a sucursal!' }],
           })(
 <Select
-         onBlur={onBlur}
+    
     placeholder="Seleccione a Sucursal.." 
     onChange={this.handleSelectSucursals}
     mode='tags'

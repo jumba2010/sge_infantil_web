@@ -220,7 +220,6 @@ class Paid extends React.Component {
   }
 
   handleOk = async () => {
-    console.log('(this.state.message: ', this.state.message)
     if (this.state.message) {
       this.setState({
         saving: true,
@@ -349,8 +348,6 @@ class Paid extends React.Component {
     pagination.pageSize = pageSize;
 
     const data = [];
-
-    console.log('payments', unpaidPayments)
 
     for (let i = 0; i < unpaidPayments.length; i++) {
       let freq = frequencies.filter(frq => frq.level === unpaidPayments[i].student.level)[0]

@@ -56,8 +56,7 @@ class ListStudent extends React.Component {
 
   componentWillMount() {    
     api.get('/api/profile/'+ JSON.parse(localStorage.getItem(SUCURSAL)).id)
-        .then(res => {   
-          console.log(res.data)      
+        .then(res => {       
           this.setState({profiles:res.data});           
         })
   

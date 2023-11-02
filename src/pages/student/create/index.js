@@ -65,21 +65,6 @@ function desabledBirthDate(current) {
   return current && current > moment().endOf('day');
 }
 
-function onChange(value) {
-  console.log(`selected ${value}`);
-}
-
-function onBlur() {
-  console.log('blur');
-}
-
-function onFocus() {
-  console.log('focus');
-}
-
-function onSearch(val) {
-  console.log('search:', val);
-}
 
 function getBase64(img, callback) {
   const reader = new FileReader();
@@ -349,7 +334,6 @@ class Student extends React.Component {
 
 handleApiCallback (resp)  {
     let registrationId = resp.data.id;
-    console.log('registrationId', registrationId);
     this.props.dispatch({
       type: 'student/fetchActiveStudents'
     });
@@ -365,7 +349,6 @@ handleApiCallback (resp)  {
     let createdStudent =res.data;
     let loggedUser = JSON.parse(localStorage.getItem(USER_KEY));
     let sucursal = JSON.parse(localStorage.getItem(SUCURSAL));
-    console.log('createdStudent',createdStudent.id)
     let {
       isNew,
       monthlyPayment,
@@ -570,7 +553,6 @@ handleApiCallback (resp)  {
       student.monthlyPayment = this.state.monthlyPayment;
       student.registrationValue = this.state.registrationValue;
       student.discount = this.state.discount;
-      console.log(student);
       localStorage.setItem('LAST_STUDENT', JSON.stringify(student));
 
       const current = this.state.current + 1;
@@ -789,8 +771,6 @@ handleApiCallback (resp)  {
                           placeholder="Seleccione.."
                           optionFilterProp="children"
                           onChange={this.handleSelectGender}
-                          onFocus={onFocus}
-                          onBlur={onBlur}
                           value={this.state.gender}
                           onSearch={onSearch}
                           filterOption={(input, option) =>
@@ -816,10 +796,7 @@ handleApiCallback (resp)  {
                           placeholder="Seleccione o tipo de Documento"
                           optionFilterProp="children"
                           onChange={this.handleSelectDocType}
-                          onFocus={onFocus}
                           value={this.state.docType}
-                          onBlur={onBlur}
-                          onSearch={onSearch}
                           filterOption={(input, option) =>
                             option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                           }
@@ -1070,9 +1047,6 @@ handleApiCallback (resp)  {
                       placeholder="Seleccione o grau de Parentesco.."
                       optionFilterProp="children"
                       onChange={this.handleSelectKinShip}
-                      onFocus={onFocus}
-                      onBlur={onBlur}
-                      onSearch={onSearch}
                       filterOption={(input, option) =>
                         option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }
@@ -1184,9 +1158,6 @@ handleApiCallback (resp)  {
                       placeholder="Seleccione o Nível.."
                       optionFilterProp="children"
                       onChange={this.handleSelectClass}
-                      onFocus={onFocus}
-                      onBlur={onBlur}
-                      onSearch={onSearch}
                       filterOption={(input, option) =>
                         option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }
@@ -1203,10 +1174,7 @@ handleApiCallback (resp)  {
                     placeholder="Seleccione o desconto.."
                     optionFilterProp="children"
                     onChange={this.handleSelectDiscount}
-                    onFocus={onFocus}
                     value={this.state.discount}
-                    onBlur={onBlur}
-                    onSearch={onSearch}
                     filterOption={(input, option) =>
                       option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                     }
@@ -1233,9 +1201,6 @@ handleApiCallback (resp)  {
                       placeholder="Seleccione a forma de Pagamento..."
                       optionFilterProp="children"
                       onChange={this.handleSelectPaymentType}
-                      onFocus={onFocus}
-                      onBlur={onBlur}
-                      onSearch={onSearch}
                       filterOption={(input, option) =>
                         option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }

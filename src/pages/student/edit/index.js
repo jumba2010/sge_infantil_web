@@ -9,6 +9,7 @@ import { USER_KEY,SUCURSAL } from "../../../services/auth";
 const { Step } = Steps;
 const { TextArea } = Input;
 const {  Content, Sider } = Layout;
+import { connect } from 'dva';
 
 import styles from './index.less';
 
@@ -23,10 +24,6 @@ const steps = [
   },
   {
     title: 'Encaregado',
-    content: '2',
-  },
-  {
-    title: 'Inscrição',
     content: '2',
   },
   {
@@ -45,22 +42,6 @@ function desabledBirthDate(current){
   return current && current > moment().endOf('day');
 }
 
-function onChange(value) {
-    console.log(`selected ${value}`);
-  }
-  
-  function onBlur() {
-    console.log('blur');
-  }
-  
-  function onFocus() {
-    console.log('focus');
-  }
-  
-  function onSearch(val) {
-    console.log('search:', val);
-  }
-
 function getBase64(img, callback) {
     const reader = new FileReader();
     reader.addEventListener('load', () => callback(reader.result));
@@ -70,7 +51,11 @@ function getBase64(img, callback) {
 
 
 
-
+  @connect(({ student, loading }) => ({
+    students: student.students,
+    currentStudent:student.currentStudent,
+    frequencies: student.frequencies,
+  }))
 class Student extends React.Component {
 
   constructor(props) {
@@ -133,44 +118,43 @@ class Student extends React.Component {
 
 
   componentWillMount(){
-    api.get('/api/student/unique/'+this.props.match.params.id)
-  .then(res => {
-    let s=res.data;
-  let freq=JSON.parse(localStorage.getItem('FREQUENCIES')).filter(frq=>frq.level==res.data.level)[0]
-  let registrationValue=s.registration.isNew?freq.registrationValue:freq.recurigRegistrationValue;
-  let discount=s.registration.needSpecialTime===1?0:1-s.registration.monthlyPayment/freq.monthlyPayment;
-  this.setState({ name:s.name,
-    birthDate: moment(s.birthDate,'YYYY-MM-DD'),
-    gender:s.sex,
-    student:s,
-    docType:s.docType,
-    docNumber:s.docNumber,
-    motherName:s.motherName,
-    carierContact:s.carier.contact,
-    carierName:s.carier.name,
-    jobLocation:s.carier.workPlace,
-    address:s.address,
-    kinshipDegree:s.carier.kinshipDegree,
-    studentAddress:s.address,
-    isNew:s.registration.isNew,
-    needSpecialHour:s.registration.needSpecialTime===1,
-    isAlergicToMedicine:s.alergicToMedicine,
-    isAlergicToFood:s.alergicToFood,
-    alergicToFood:s.alergicToFood,
-    alergicToMedicine:s.alergicToMedicine,
-    fatherName:s.fatherName,
-    motherContact:s.motherContact,
-    fatherContact:s.fatherContact,
+    let s=this.props.currentStudent;
+    let freq=this.props.frequencies.filter(frq=>frq.level==s.student.level)[0]
+    let registrationValue=s.isNew?freq.registrationValue:freq.recurigRegistrationValue;
+    let discount=s.needSpecialTime===1?0:1-s.monthlyPayment/freq.monthlyPayment;
+    this.setState({ name:s.student.name,
+    registrationId:s.id,
+    birthDate: moment(s.student.birthDate,'YYYY-MM-DD'),
+    gender:s.student.sex,
+    student:s.student,
+    docType:s.student.docType,
+    docNumber:s.student.docNumber,
+    motherName:s.student.motherName,
+    carierContact:s.student.carier.contact,
+    carierName:s.student.carier.name,
+    jobLocation:s.student.carier.workPlace,
+    address:s.student.address,
+    kinshipDegree:s.student.carier.kinshipDegree,
+    studentAddress:s.student.address,
+    isNew:s.isNew,
+    needSpecialHour:s.needSpecialTime===1,
+    isAlergicToMedicine:s.student.alergicToMedicine,
+    isAlergicToFood:s.student.alergicToFood,
+    alergicToFood:s.student.alergicToFood,
+    alergicToMedicine:s.student.alergicToMedicine,
+    fatherName:s.student.fatherName,
+    motherContact:s.student.motherContact,
+    fatherContact:s.student.fatherContact,
     registrationValue:freq.registrationValue,
-    monthlyPayment:s.registration.monthlyPayment,
-    initialMonthly:s.registration.monthlyPayment,
-    oldMonthlyValue:s.registration.monthlyPayment,
-     workplace:s.carier.workPlace,
-     discount,
+    monthlyPayment:s.monthlyPayment,
+    initialMonthly:s.monthlyPayment,
+    oldMonthlyValue:s.monthlyPayment,
+    workplace:s.student.carier.workPlace,
+    discount,
     issaving:false,
     freqDescription:freq.description,
-    frequency:s.level});
-});
+    frequency:s.student.level});
+
 
   }
 
@@ -207,7 +191,7 @@ return isJpgOrPng && isLt2M;
   }
 
   changeNeedSpecialHour(e){
-    let freq= JSON.parse(localStorage.getItem('FREQUENCIES')).filter((f)=>f.level===this.state.frequency)[0];
+    let freq= this.props.frequencies.filter((f)=>f.level===this.state.frequency)[0];
     let monthlyPayment=this.state.monthlyPayment;
     let extra=e.target.checked?freq.specialHourMonthlyValue:0;
     let newMontlyPayment=monthlyPayment + extra ;  
@@ -227,7 +211,7 @@ return isJpgOrPng && isLt2M;
   }
 
   handleSelectClass(frequency) {
-let freq= JSON.parse(localStorage.getItem('FREQUENCIES')).filter((f)=>f.level===frequency)[0];
+let freq= this.props.frequencies.filter((f)=>f.level===frequency)[0];
 let registrationValue=this.state.isNew?freq.registrationValue:freq.recurigRegistrationValue;
 this.setState({frequency,registrationValue,monthlyPayment:freq.monthlyPayment,oldMonthlyValue:freq.monthlyPayment,recurigRegistrationValue:freq.recurigRegistrationValue});  
   }
@@ -252,7 +236,6 @@ this.setState({frequency,registrationValue,monthlyPayment:freq.monthlyPayment,ol
       this.setState({carierName:this.state.motherName,carierContact:this.state.motherContact});
     }
 
-    
     else{
       this.setState({carierName:'',carierContact:''});  
     }
@@ -319,11 +302,15 @@ this.setState({frequency,registrationValue,monthlyPayment:freq.monthlyPayment,ol
  let sucursal=JSON.parse(localStorage.getItem(SUCURSAL));
  let picture = this.state.imageUrl;
 
- let { name,address,gender,isNew,birthDate,docType,docNumber,motherName,jobLocation,carierContact,carierName,workplace,frequency,fatherContact,motherContact,fatherName,kinshipDegree,monthlyPayment,registrationValue,discount,studentAddress,needSpecialHour,alergicToFood,alergicToMedicine} = this.state
+ let { name,address,gender,isNew,birthDate,docType,docNumber,motherName,jobLocation,
+  carierContact,carierName,workplace,frequency,
+  fatherContact,motherContact,fatherName,kinshipDegree,
+  monthlyPayment,registrationValue,discount,studentAddress,
+  needSpecialHour,alergicToFood,alergicToMedicine,registrationId} = this.state
 
 api.put("/api/student/"+this.state.student.id, {
   name,alergicToFood,alergicToMedicine,
-    registrationId:this.state.student.registration.id,address,sex:gender,
+    registrationId,address,sex:gender,
     birthDate,docType,docNumber,
     motherName,fatherName,picture,
     motherContact,fatherContact,
@@ -334,6 +321,22 @@ api.put("/api/student/"+this.state.student.id, {
     discount,isNew,needSpecialTime:needSpecialHour,classId:frequency,
     currentMonthlyPayment:monthlyPayment,level:frequency,updatedBy:loggedUser.id
 })
+.then( data =>{
+  const current = this.state.current + 1;      
+    this.setState({ current,issaving:false });
+    window.scrollTo(0, 0);  
+  this.props.dispatch({
+    type: 'student/fetchActiveStudents'
+  });
+
+  this.props.dispatch({
+    type: 'payment/fetchUnpaidPayments',
+  });
+
+  this.props.dispatch({
+    type: 'payment/fetchPaidPayments',
+  });
+})
 .catch(function (error) { 
   notification.error({
       description:'Erro ao Processar o o seu pedido',
@@ -341,9 +344,6 @@ api.put("/api/student/"+this.state.student.id, {
     });     
 });
 
- const current = this.state.current + 1;      
-    this.setState({ current,issaving:false });
-    window.scrollTo(0, 0);   
   }
 
   next1() {
@@ -367,15 +367,6 @@ api.put("/api/student/"+this.state.student.id, {
     this.props.form.validateFieldsAndScroll((err, values) => { 
     });
     if(this.state.kinshipDegree && this.state.carierName && this.state.carierContact && this.state.address && this.state.carierContact.length===9){   
-    const current = this.state.current + 1;
-    this.setState({ current });
-  }
-  }
-
-  next4() {
-    this.props.form.validateFieldsAndScroll((err, values) => { 
-    });
-    if(this.state.frequency && this.state.paymentMethod ){   
     const current = this.state.current + 1;
     this.setState({ current });
   }
@@ -496,10 +487,9 @@ current==0?
     placeholder="Seleccione.."
     optionFilterProp="children" 
     onChange={this.handleSelectGender}
-    onFocus={onFocus}
-    onBlur={onBlur}
+
     value={this.state.gender}
-    onSearch={onSearch}
+
     filterOption={(input, option) =>
       option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
     }
@@ -522,10 +512,8 @@ current==0?
     placeholder="Seleccione o tipo de Documento"
     optionFilterProp="children"
     onChange={this.handleSelectDocType}
-    onFocus={onFocus}
+
     value={this.state.docType}
-    onBlur={onBlur}
-    onSearch={onSearch}
     filterOption={(input, option) =>
       option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
     }
@@ -697,9 +685,6 @@ current==2?
     placeholder="Seleccione o grau de Parentesco.."
     optionFilterProp="children"
     onChange={this.handleSelectKinShip}
-    onFocus={onFocus}
-    onBlur={onBlur}
-    onSearch={onSearch}
     filterOption={(input, option) =>
       option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
     }
@@ -781,118 +766,9 @@ current==2?
 :null}
 
 
+
 {
 current==3?
-<Form {...formItemLayout} style={{ padding: '50px 0' }}>
-<Form.Item label="Nível">
-          {getFieldDecorator('frequency', {initialValue:`${this.state.freqDescription}`,
-            rules: [{ required: true, message: 'Por favor informe o Nível!' }],
-          })(
-<Select
-    showSearch
-  
-    placeholder="Seleccione o Nível.."
-    optionFilterProp="children"
-    onChange={this.handleSelectClass}
-    onFocus={onFocus}
-    onBlur={onBlur}
-    onSearch={onSearch}
-    filterOption={(input, option) =>
-      option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-    }
-  >
-    {
-  JSON.parse(localStorage.getItem('FREQUENCIES')).map(f=><Option value={f.level} >{f.description}</Option>)
-  }
-     </Select>          
-
-          )}
-        </Form.Item>
-          <Form.Item label="Deconto">
-         
-<Select
-    showSearch
-  
-    placeholder="Seleccione o desconto.."
-    optionFilterProp="children"
-    onChange={this.handleSelectDiscount}
-    onFocus={onFocus}
-    value={this.state.discount}
-    onBlur={onBlur}
-    onSearch={onSearch}
-    filterOption={(input, option) =>
-      option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-    }
-  >
-    <Option value="0.0">0%</Option>
-    <Option value="0.05">5%</Option>
-    <Option value="0.10">10%</Option>
-    <Option value="0.15">15%</Option>
-    <Option value="0.20">20%</Option>
-    <Option value="0.25">25%</Option>
-    <Option value="0.30">30%</Option>
-    <Option value="0.35">35%</Option>
-     </Select>        
-       
-        </Form.Item>
-
-        <Form.Item {...tailFormItemLayout}>
-       
-        <Checkbox name='needSpecialHour' checked={this.state.needSpecialHour} onChange={this.changeNeedSpecialHour.bind(this)} >Pretende ter horário especial</Checkbox>
-        </Form.Item>
-        <Form.Item label="Formas de Pagamento">
-        {getFieldDecorator('paymentType', {initialValue:`${this.state.paymentMethod}`,
-            rules: [{ required: true, message: 'Por favor informe as formas de Pagamento!' }],
-          })(
-         <Select
-             showSearch
-           
-             placeholder="Seleccione a forma de Pagamento..."
-             optionFilterProp="children"
-             onChange={this.handleSelectPaymentType}
-             onFocus={onFocus}
-             onBlur={onBlur}
-             onSearch={onSearch}
-             filterOption={(input, option) =>
-               option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-             }
-           >
-             <Option value="NUMERARIO">Numerário</Option>
-             <Option value="POS">POS</Option>
-             <Option value="TRANSFERENCIA">Transferência Bancária</Option>
-             <Option value="DEPOSITO">Deposito Bancário</Option>
-             <Option value="MPEZA">Mpeza</Option>
-          </Select>)}        
-                
-                 </Form.Item>
-        
-<Form.Item >
-
-<div className={styles.information}  style={{ marginLeft: 180 }}>
-      <Descriptions column={1}>
-        <Descriptions.Item label="Valor da Inscrição"> 
-        <Statistic value={this.state.registrationValue} suffix="MZN" />        
-        </Descriptions.Item>
-        <Descriptions.Item label="Valor Mensal">
-        <Statistic value= {this.state.monthlyPayment} suffix="MZN" /> 
-          </Descriptions.Item>        
-      </Descriptions>
-    </div>
-<Button style={{ marginLeft: 180 }} onClick={() => this.prev()}>
-              Anterior
-            </Button>
-       
-            <Button style={{ marginLeft: 8 }}  type="primary" htmlType="submit" onClick={() => this.next()}>
-              Próximo
-            </Button>
-        
-        
-        </Form.Item>
-      </Form>
-:null}
-
-{
-current==4?
 <Form {...formItemLayout} style={{ padding: '50px 0' }} >
 <Alert message="Confirme os Dados abaixo e pressione em confirmar" type="info" showIcon /> 
 
@@ -937,7 +813,7 @@ current==4?
         </Form.Item>
       </Form>
 :null}
-{current==5?
+{current==4?
   <Form {...formItemLayout} style={{ padding: '50px 0' }}>
 <Result
     status="success"

@@ -7,9 +7,14 @@ import { notification } from 'antd';
 import api from './../../../services/api';
 import { USER_KEY,SUCURSAL } from "./../../../services/auth";
 import styles from './index.less';
+import { connect } from 'dva';
 const { TextArea } = Input;
 
-
+@connect(({ student, loading }) => ({
+  students: student.students,
+  currentStudent:student.currentStudent,
+  frequencies: student.frequencies,
+}))
 class InativateStudent extends React.Component {
 
   constructor(props) {
@@ -26,11 +31,42 @@ class InativateStudent extends React.Component {
   } 
 
   componentWillMount(){
-    api.get('/api/student/unique/'+this.props.match.params.id)
-  .then(res => {
-  let frequency=JSON.parse(localStorage.getItem('FREQUENCIES')).filter(frq=>frq.level==res.data.level)[0].description
-  this.setState({student:res.data,frequency});
-});
+    let s=this.props.currentStudent;
+    let freq=this.props.frequencies.filter(frq=>frq.level==s.student.level)[0]
+    let registrationValue=s.isNew?freq.registrationValue:freq.recurigRegistrationValue;
+    let discount=s.needSpecialTime===1?0:1-s.monthlyPayment/freq.monthlyPayment;
+    this.setState({ name:s.student.name,
+    registrationId:s.id,
+    birthDate: moment(s.student.birthDate,'YYYY-MM-DD'),
+    gender:s.student.sex,
+    student:s.student,
+    docType:s.student.docType,
+    docNumber:s.student.docNumber,
+    motherName:s.student.motherName,
+    carierContact:s.student.carier.contact,
+    carierName:s.student.carier.name,
+    jobLocation:s.student.carier.workPlace,
+    address:s.student.address,
+    kinshipDegree:s.student.carier.kinshipDegree,
+    studentAddress:s.student.address,
+    isNew:s.isNew,
+    needSpecialHour:s.needSpecialTime===1,
+    isAlergicToMedicine:s.student.alergicToMedicine,
+    isAlergicToFood:s.student.alergicToFood,
+    alergicToFood:s.student.alergicToFood,
+    alergicToMedicine:s.student.alergicToMedicine,
+    fatherName:s.student.fatherName,
+    motherContact:s.student.motherContact,
+    fatherContact:s.student.fatherContact,
+    registrationValue:freq.registrationValue,
+    monthlyPayment:s.monthlyPayment,
+    initialMonthly:s.monthlyPayment,
+    oldMonthlyValue:s.monthlyPayment,
+    workplace:s.student.carier.workPlace,
+    discount,
+    issaving:false,
+    freqDescription:freq.description,
+    frequency:freq.description});
 
   }
 
@@ -57,8 +93,21 @@ const {inativationReason}=this.state;
 if(inativationReason){
   this.setState({loading:true});
    api.put("/api/student/inativate/"+this.state.student.id, {
-    payments:this.state.student.payments,registrationId:this.state.student.registration.id,carierId:this.state.student.carier.id,activatedBy:JSON.parse(localStorage.getItem(USER_KEY)).id
-  }) 
+    payments:this.props.currentStudent.payments,registrationId:this.state.registrationId,activatedBy:JSON.parse(localStorage.getItem(USER_KEY)).id
+  }).then(data =>{
+    this.props.dispatch({
+      type: 'student/fetchActiveStudents'
+    });
+  
+    this.props.dispatch({
+      type: 'payment/fetchUnpaidPayments',
+    });
+  
+    this.props.dispatch({
+      type: 'payment/fetchPaidPayments',
+    });
+    this.setState({success:true,loading:false})
+  })
   .catch(function (error) { 
     notification.error({
         description:'Erro ao Processar o o seu pedido',
@@ -67,7 +116,6 @@ if(inativationReason){
      
   });
  
-  this.setState({success:true,loading:false})
 }
 
   }

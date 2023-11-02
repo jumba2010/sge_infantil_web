@@ -432,7 +432,6 @@ class RenewStudent extends React.Component {
   }
 
   searchFields() {
-    console.log('Sucursal',JSON.parse(localStorage.getItem(SUCURSAL)))
     let sucursalId=JSON.parse(localStorage.getItem(SUCURSAL)).id
     api.get('/api/frequency/' +sucursalId).then(res => {
       this.setState({

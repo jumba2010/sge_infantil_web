@@ -93,12 +93,24 @@ class ListStudent extends React.Component {
   };
 
   editStudent(record) {
-    let s = this.state.originaldata.filter(d => d.id === record.id)[0];
+    let s = this.state.originaldata.filter(d => d.studentId === record.id)[0];
+    
+    this.props.dispatch({
+      type: 'student/setCurrentStudent',
+      payload:s
+    });
+
     this.props.history.push('/student/edit/' + s.id);
   }
 
   handleAnull(record) {
-    let s = this.state.originaldata.filter(d => d.id === record.id)[0];
+    let s = this.state.originaldata.filter(d => d.studentId === record.id)[0];
+    
+    this.props.dispatch({
+      type: 'student/setCurrentStudent',
+      payload:s
+    });
+    
     this.props.history.push('/student/inativate/' + s.id);
   }
 
@@ -207,8 +219,6 @@ class ListStudent extends React.Component {
 
   handleSelectNotificationStatus(status) {
     let s = this.state.lastNotificationdata.filter(n => n.status == status);
-    console.log(status);
-    console.log(this.state.lastNotificationdata);
     this.setState({ notifications: s });
   }
 
@@ -474,7 +484,6 @@ class ListStudent extends React.Component {
 
   render() {
     const {frequencies} = this.props
-    console.log('Frequencies: ',frequencies)
     const columns = [
       { title: 'Nome', dataIndex: 'name', key: 'name', render: (_, record) =><a>{record.student.name}</a> },
       { title: 'Data de Nacimento', dataIndex: 'birthDate', key: 'birthDate' , render: (_, record) =><a>{record.student.birthDate}</a>},

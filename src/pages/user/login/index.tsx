@@ -92,7 +92,6 @@ class Login extends Component<LoginProps, LoginState> {
           type: 'student/fetchFrequencies',
         });
 
-        console.log('calling students')
         dispatch({
           type: 'student/fetchActiveStudents',
         });

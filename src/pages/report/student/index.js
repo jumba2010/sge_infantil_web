@@ -61,8 +61,6 @@ class Pay extends React.Component {
     this.setState({loadign:true,data:[]})
     api.get('/api/payment/count/'+JSON.parse(localStorage.getItem(SUCURSAL)).id+'/2020/'+month).then(res => {
       const data = []; 
-
-      console.log('Resultado',res.data)
    for (let index = 0; index < res.data.length; index++) {
     let month=months.filter((m)=>m.code==res.data[index].month)[0].desc 
     data.push({

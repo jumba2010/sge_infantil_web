@@ -57,13 +57,11 @@ class Pay extends React.Component {
       var payment ={}
      const registration = students.filter(reg => {
        const payments = reg.payments;
-       console.log('payments',payments)
        payment =payments.filter(p=>p.id==this.props.match.params.paymentId)
        return payments.some(payment => payment.id == this.props.match.params.paymentId);
     
      })[0];
-     console.log('payment',payment)
- 
+
      let level=frequencies.filter(frq => frq.level==registration.student.level)[0]
      let month=months.filter(m=>m.code==payment.month)[0]
      this.setState({payment:payment,

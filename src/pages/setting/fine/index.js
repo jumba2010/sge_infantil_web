@@ -33,22 +33,6 @@ const steps = [
   },
 ];
 
-function onChange(value) {
-    console.log(`selected ${value}`);
-  }
-  
-  function onBlur() {
-    console.log('blur');
-  }
-  
-  function onFocus() {
-    console.log('focus');
-  }
-  
-  function onSearch(val) {
-    console.log('search:', val);
-  }
-
 function getBase64(img, callback) {
     const reader = new FileReader();
     reader.addEventListener('load', () => callback(reader.result));
@@ -369,10 +353,7 @@ current==0?
     placeholder="Seleccione.."
     optionFilterProp="children" 
     onChange={this.handleSelectGender}
-    onFocus={onFocus}
-    onBlur={onBlur}
     value={this.state.gender}
-    onSearch={onSearch}
     filterOption={(input, option) =>
       option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
     }
@@ -395,10 +376,7 @@ current==0?
     placeholder="Seleccione o tipo de Documento"
     optionFilterProp="children"
     onChange={this.handleSelectDocType}
-    onFocus={onFocus}
     value={this.state.docType}
-    onBlur={onBlur}
-    onSearch={onSearch}
     filterOption={(input, option) =>
       option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
     }
@@ -518,9 +496,6 @@ current==2?
     placeholder="Seleccione o grau de Parentesco.."
     optionFilterProp="children"
     onChange={this.handleSelectKinShip}
-    onFocus={onFocus}
-    onBlur={onBlur}
-    onSearch={onSearch}
     filterOption={(input, option) =>
       option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
     }
@@ -617,9 +592,6 @@ current==3?
     placeholder="Seleccione a Classe.."
     optionFilterProp="children"
     onChange={this.handleSelectClass}
-    onFocus={onFocus}
-    onBlur={onBlur}
-    onSearch={onSearch}
     filterOption={(input, option) =>
       option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
     }
@@ -654,10 +626,7 @@ current==3?
     placeholder="Seleccione o desconto.."
     optionFilterProp="children"
     onChange={this.handleSelectDiscount}
-    onFocus={onFocus}
     value={this.state.discount}
-    onBlur={onBlur}
-    onSearch={onSearch}
     filterOption={(input, option) =>
       option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
     }
@@ -682,9 +651,6 @@ current==3?
              placeholder="Seleccione a forma de Pagamento..."
              optionFilterProp="children"
              onChange={this.handleSelectPaymentType}
-             onFocus={onFocus}
-             onBlur={onBlur}
-             onSearch={onSearch}
              filterOption={(input, option) =>
                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
              }

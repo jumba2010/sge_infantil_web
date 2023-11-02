@@ -9,6 +9,7 @@ const SutudentModel = {
     students: [],
     frequencies: [],
     unrenewdStudents: [],
+    currentStudent:{}
   },
 
   effects: {
@@ -37,13 +38,19 @@ const SutudentModel = {
   },
 
   *addStudent({ payload }, { call,put }) {
-    console.log('payload',payload)
     const response = yield call(findActiveStudentById,payload.registrationId);
     yield put({
       type: 'updateActiveStudents',
       payload: response,
     });
  },
+
+ *setCurrentStudent({ payload }, { call,put }) {
+  yield put({
+    type: 'updateCurrentStudent',
+    payload: payload,
+  });
+},
 
 },
 
@@ -99,6 +106,13 @@ const SutudentModel = {
           students: state.students.filter(item => item.id !== action.payload.id),
         };
         },
+
+        updateCurrentStudent(state, action) {
+          return {
+            ...state,
+            currentStudent:action.payload,
+          };
+          },
   },
 };
 
