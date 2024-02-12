@@ -33,6 +33,8 @@ import api, { baseURL } from '../../../services/api';
 import { USER_KEY, SUCURSAL } from '../../../services/auth';
 import moment from 'moment';
 import axios from 'axios';
+import { formatMessage } from 'umi-plugin-react/locale';
+import { connect } from 'dva';
 const { TextArea } = Input;
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -45,10 +47,8 @@ const pageSize = 6;
 
 const returnYearToRencer = () => {
   var years = [];
-  let year1 = new Date().getFullYear();
-  let year2 = year1 + 1;
-  let year3 = year1 - 1;
-  years = [year3, year1, year2];
+  let year = new Date().getFullYear();
+  years = [year];
 
   return years;
 };
@@ -68,6 +68,9 @@ function CurrencyFormatted(amount) {
   return formatter.format(amount);
 }
 
+@connect(({student }) => ({
+  frequencies:student.frequencies
+}))
 class RenewStudent extends React.Component {
   constructor(props) {
     super(props);
@@ -82,6 +85,7 @@ class RenewStudent extends React.Component {
       notifications: [],
       monthlyPayment: 0,
       lastNotificationdata: [],
+      frequencies: [],
       payments: [],
       oldMonthlyValue: 0,
       selectedRowKeys: [],
@@ -90,7 +94,6 @@ class RenewStudent extends React.Component {
       visible: false,
       discount: 0.0,
       saving: false,
-      frequencies: [],
       total: 0,
       payFirstMonth: true,
       message: '',
@@ -127,16 +130,16 @@ class RenewStudent extends React.Component {
 
   onSelectChange = selectedRowKeys => {
     let student = this.state.data.filter(s => s.studentNumber == selectedRowKeys[0])[0];
-    let freq = this.state.frequencies.filter(f => f.level === student.level + 1)[0];
-
+    let freq = this.props.frequencies.filter(f => parseInt(f.level) == parseInt(student.level)+1)[0];
+console.log(freq)
     this.setState({
       selectedRowKeys,
-      recurigRegistrationValue: freq.recurigRegistrationValue,
-      monthlyPayment: freq.monthlyPayment,
+      recurigRegistrationValue: parseFloat(freq.recurigRegistrationValue),
+      monthlyPayment: parseFloat(freq.monthlyPayment),
       frequency: freq.id,
       discount: 0,
-      total: freq.monthlyPayment + freq.recurigRegistrationValue,
-      oldMonthlyValue: freq.monthlyPayment,
+      total: parseFloat(freq.monthlyPayment) + parseFloat(freq.recurigRegistrationValue),
+      oldMonthlyValue: parseFloat(freq.monthlyPayment),
     });
   };
 
@@ -161,19 +164,21 @@ class RenewStudent extends React.Component {
 
   changePayFirstMonth(e) {
     let total = e.target.checked
-      ? this.state.recurigRegistrationValue + this.state.monthlyPayment
-      : this.state.recurigRegistrationValue;
+      ?parseFloat( this.state.recurigRegistrationValue) + parseFloat(this.state.monthlyPayment)
+      : parseFloat(this.state.recurigRegistrationValue);
     this.setState({ payFirstMonth: e.target.checked, total });
   }
 
   handleSelectLevel(frequency) {
-    let freq = this.state.frequencies.filter(f => f.level === frequency)[0];
-    let total = freq.recurigRegistrationValue + freq.monthlyPayment;
+    let freq = this.props.frequencies.filter(f => f.id == frequency)[0];
+
+    console.log('Selceted Freq:',freq,frequency, this.props.frequencies)
+    let total = parseFloat(freq.recurigRegistrationValue) + parseFloat(freq.monthlyPayment);
     this.setState({
       frequency,
-      recurigRegistrationValue: freq.recurigRegistrationValue,
-      monthlyPayment: freq.monthlyPayment,
-      oldMonthlyValue: freq.monthlyPayment,
+      recurigRegistrationValue: parseFloat(freq.recurigRegistrationValue),
+      monthlyPayment: parseFloat(freq.monthlyPayment),
+      oldMonthlyValue: parseFloat(freq.monthlyPayment),
       total,
     });
   }
@@ -209,8 +214,8 @@ class RenewStudent extends React.Component {
       selectedRowKeys,
       frequency,
     } = this.state;
-    let studentId = this.state.students.filter(s => s.studentNumber == selectedRowKeys[0])[0].id;
-    let level = this.state.frequencies.filter(f => f.id == frequency)[0].level;
+    let student = this.state.students.filter(s => s.studentNumber == selectedRowKeys[0])[0];
+    let level = this.props.frequencies.filter(f => f.id == frequency)[0].level;
 
     await api
       .post('/api/registration/renew', {
@@ -219,13 +224,23 @@ class RenewStudent extends React.Component {
         monthlyPayment,
         discount,
         needSpecialTime: false,
-        studentId,
+        student,
         sucursal,
         level,
         classId: frequency,
         createdBy: loggedUser.id,
         payFirstMonth,
         activatedBy: loggedUser.id,
+      })
+      .then( data => {
+        this.props.dispatch({
+          type: 'student/fetchActiveStudents'
+        });
+     this.searchFields();
+     this.setState({
+      saving: false,
+      success: true,
+    });
       })
       .catch(function(error) {
         notification.error({
@@ -234,11 +249,7 @@ class RenewStudent extends React.Component {
         });
       });
 
-    this.searchFields();
-    this.setState({
-      saving: false,
-      success: true,
-    });
+   
   };
 
   handleCancel() {
@@ -255,8 +266,8 @@ class RenewStudent extends React.Component {
   }
 
   handleSelectDiscount(discount) {
-    let monthlyPayment = this.state.oldMonthlyValue * (1 - parseFloat(discount));
-    let total = this.state.recurigRegistrationValue + monthlyPayment;
+    let monthlyPayment = parseFloat(this.state.oldMonthlyValue) * (1 - parseFloat(discount));
+    let total = parseFloat(this.state.recurigRegistrationValue) +parseFloat(monthlyPayment);
     this.setState({ discount, monthlyPayment, total });
   }
 
@@ -304,7 +315,7 @@ class RenewStudent extends React.Component {
                   placeholder="Pesqise pelo Nível ..."
                   style={{ width: '100%' }}
                 >
-                  {this.state.frequencies.map(f => (
+                  {this.props.frequencies.map(f => (
                     <Select.Option value={f.level}>{f.description}</Select.Option>
                   ))}
                 </Select>,
@@ -353,7 +364,7 @@ class RenewStudent extends React.Component {
                   placeholder="Pesquise pelo Nível ..."
                   style={{ width: '100%' }}
                 >
-                  {JSON.parse(this.state.frequencies).map(f => (
+                  {JSON.parse(this.props.frequencies).map(f => (
                     <Select.Option value={f.level}>{f.description}</Select.Option>
                   ))}
                 </Select>,
@@ -433,13 +444,7 @@ class RenewStudent extends React.Component {
 
   searchFields() {
     let sucursalId=JSON.parse(localStorage.getItem(SUCURSAL)).id
-    api.get('/api/frequency/' +sucursalId).then(res => {
-      this.setState({
-        frequencies: res.data
-      })
-    });
-
-    
+   
     api
       .get('/api/student/unrenewd/sucursal/' +sucursalId)
       .then(res => {
@@ -465,11 +470,11 @@ class RenewStudent extends React.Component {
       { title: 'Nome', dataIndex: 'name', key: 'name', render: text => <a>{text}</a> },
       { title: 'Data de Nacimento', dataIndex: 'birthDate', key: 'birthDate' },
       {
-        title: 'Nível Anterior',
+        title: 'Nível',
         dataIndex: 'level',
         key: 'level',
         render: (_, record) => (
-          <Text>{this.state.frequencies && this.state.frequencies.length>0?this.state.frequencies.filter(frq => frq.level === record.level)[0].description:''}</Text>
+          <Text>{this.props.frequencies && this.props.frequencies.length>0?this.props.frequencies.filter(frq => frq.level === record.level)[0].description:''}</Text>
         ),
       },
       {
@@ -490,9 +495,9 @@ class RenewStudent extends React.Component {
 
     const hasSelected = this.state.selectedRowKeys.length > 0;
     const { getFieldDecorator } = this.props.form;
-    const selectedStudent = this.state.data.filter(s => s.id == selectedRowKeys[0])[0];
-    const freq = this.state.frequencies.filter(
-      f => f.level == (selectedStudent ? selectedStudent.level + 1 : 1),
+    const selectedStudent = this.state.data.filter(s => s.studentNumber == selectedRowKeys[0])[0];
+    const freq = this.props.frequencies.filter(
+      f => f.level == (selectedStudent ? parseInt(selectedStudent.level) + 1 : 1),
     )[0];
     const frequency = freq?freq.description:'';
 
@@ -535,7 +540,7 @@ class RenewStudent extends React.Component {
                         column={2}
                         className={styles.information}
                       >
-                        <Descriptions.Item label="Nome Completo">{record.name}</Descriptions.Item>
+                        <Descriptions.Item label={formatMessage({id:'student.name'})}>{record.name}</Descriptions.Item>
                         <Descriptions.Item label="Data de Nascimento">
                           {record.birthDate}
                         </Descriptions.Item>
@@ -599,7 +604,7 @@ class RenewStudent extends React.Component {
                         className={styles.information}
                       >
                         <Descriptions.Item label="Frequência">
-                          {this.state.frequencies.filter(frq => frq.level === record.level)[0].description}
+                          {this.props.frequencies.filter(frq => frq.level == record.level)[0].description}
                         </Descriptions.Item>
                         <Descriptions.Item label="Valor Mensal">
                           <Statistic value={record.currentMonthlyPayment} suffix="MZN" />
@@ -620,13 +625,14 @@ class RenewStudent extends React.Component {
           visible={this.state.visible}
           title="Renovação de inscrição"
           onOk={this.handleOk}
+
           width={800}
           onCancel={this.handleCancel.bind(this)}
           footer={[
             !this.state.success ? (
               <>
                 <Button type="danger" key="back" onClick={this.handleCancel.bind(this)}>
-                  Cancelar
+                  {formatMessage({id:'global.cancel'})}
                 </Button>
                 ,
                 <Button
@@ -636,7 +642,7 @@ class RenewStudent extends React.Component {
                   onClick={this.handleOk.bind(this)}
                   loadign={this.state.saving}
                 >
-                  Confirmar
+                  {formatMessage({id:'global.confirm'})}
                 </Button>
                 ,
               </>
@@ -649,7 +655,7 @@ class RenewStudent extends React.Component {
                 <Descriptions title={selectedStudent ? selectedStudent.name : ''}>
                   <Descriptions.Item label="Nível anterior">
                     {selectedStudent
-                      ? this.state.frequencies.filter(frq => frq.level === selectedStudent.level)[0]
+                      ? this.props.frequencies.filter(frq => frq.level == selectedStudent.level)[0]
                           .description
                       : ''}
                   </Descriptions.Item>
@@ -675,7 +681,7 @@ class RenewStudent extends React.Component {
                           option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                         }
                       >
-                        {this.state.frequencies.map(f => (
+                        {this.props.frequencies.map(f => (
                           <Select.Option value={f.id}>{f.description}</Select.Option>
                         ))}
                       </Select>,
@@ -762,7 +768,7 @@ class RenewStudent extends React.Component {
             <Form {...formItemLayout} style={{ padding: '50px 0' }}>
               <Result
                 status="success"
-                title="Operação Realizada com Sucesso!"
+                title={formatMessage({id:'global.success.message'})}
                 subTitle={`Inscrição realizado com Sucesso `}
                 extra={extra}
               />

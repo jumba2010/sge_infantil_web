@@ -319,6 +319,8 @@ class ListStudent extends React.Component {
     ];
 
     const expandedPaymentRowRender = record => {
+
+      console.log('Payment Record',record)
       const columns = [
         { title: 'Ano', dataIndex: 'year', key: 'year' },
         { title: 'Mês', dataIndex: 'month', key: 'month' },
@@ -328,12 +330,12 @@ class ListStudent extends React.Component {
           key: 'status',
           render: (text, record) => (
             <span>
-              {record.status + "" == "0" ? (
-                <Badge count={'Não Pago'} />
+              {record.status + "" == "1" ? (
+                <Badge count={'Pago'} style={{ backgroundColor: '#52c41a' }} />
               ) : record.hasFine ? (
                 <Badge count={'Pago'} style={{ backgroundColor: '#DAA520' }} />
               ) : (
-                <Badge count={'Pago'} style={{ backgroundColor: '#52c41a' }} />
+                <Badge count={'Não Pago'}  />
               )}
             </span>
           ),

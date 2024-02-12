@@ -426,7 +426,7 @@ class ListStudent extends React.Component {
             onCancel={this.handleCancel.bind(this)}
             footer={[
               <Button  type="danger" key="back" onClick={this.handleCancel.bind(this)}>
-                Cancelar
+                {formatMessage({id:'global.cancel'})}
               </Button>,
               <Button
                 key="submit"
@@ -435,7 +435,7 @@ class ListStudent extends React.Component {
                 onClick={this.handleOk.bind(this)}
                 loadign={this.state.saving}
               >
-                Confirmar
+                {formatMessage({id:'global.confirm'})}
               </Button>,
             ]}
           >

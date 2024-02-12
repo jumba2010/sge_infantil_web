@@ -32,31 +32,33 @@ const { Step } = Steps;
 const { TextArea } = Input;
 const { Content, Sider } = Layout;
 
+import { formatMessage } from 'umi-plugin-react/locale';
+
 import styles from './index.less';
 
 const steps = [
   {
-    title: 'Dados Pessoais',
+    title: formatMessage({id:'student.personal.details'}),
     content: <div>ss</div>,
   },
   {
-    title: 'Filiação',
+    title: formatMessage({id:'global.parents'}),
     content: '2',
   },
   {
-    title: 'Encaregado',
+    title: formatMessage({id:'student.sponsor'}),
     content: '2',
   },
   {
-    title: 'Inscrição',
+    title: formatMessage({id:'student.registration.details'}),
     content: '2',
   },
   {
-    title: 'Confirmar',
+    title: formatMessage({id:'global.confirm'}),
     content: '3',
   },
   {
-    title: 'Sucesso',
+    title: formatMessage({id:'global.success'}),
     content: '4',
   },
 ];
@@ -366,7 +368,7 @@ handleApiCallback (resp)  {
       studentId: createdStudent.id,
       student:createdStudent,
       isNew,
-      year: 2020,
+      year: new Date().getFullYear(),
       sucursal: sucursal,
       classId: frequency,
       createdBy: loggedUser.id,
@@ -652,19 +654,19 @@ handleApiCallback (resp)  {
       initialValue: 'BI',
     })(
       <Select style={{ width: 200 }}>
-        <Option value="BI">BI</Option>
-        <Option value="cedula">Cédula Pessoal</Option>
-        <Option value="Nenhum">Sem Documento</Option>
+        <Option value="BI">{formatMessage({id:'document.type.id'})}</Option>
+        <Option value="cedula">{formatMessage({id:'document.type.personal.id.card'})}</Option>
+        <Option value="Nenhum">{formatMessage({id:'document.type.personal.nodoc'})}</Option>
       </Select>,
     );
 
     const extra = (
       <>
         <Button type="primary" onClick={this.restart.bind(this)}>
-          Cadastrar Novo Estudante
+          {formatMessage({ id: 'student.add' })}
         </Button>
         <Button onClick={() => this.props.history.push('/student/mantain')}>
-          Listar Estudante
+        {formatMessage({ id: 'list.student' })}
         </Button>
       </>
     );
@@ -678,7 +680,7 @@ handleApiCallback (resp)  {
                 key={item.title}
                 title={item.title}
                 icon={
-                  item.title === 'Confirmar' && current == 4 && this.state.issaving ? (
+                  item.title === (formatMessage({id:'global.confirm'})) && current == 4 && this.state.issaving ? (
                     <Icon type="loading" />
                   ) : null
                 }
@@ -697,7 +699,7 @@ handleApiCallback (resp)  {
                 {localStorage.getItem('LAST_STUDENT') != null ? (
                   <Alert
                     style={{ margin: '30px 10px' }}
-                    description="Existe um Estudante ainda nao gravado. Caso queira abortar o cadastro corente, clique em cancelar."
+                    description={formatMessage({id:'unsaved.student.warning'})}
                     type="warning"
                   ></Alert>
                 ) : null}
@@ -723,8 +725,8 @@ handleApiCallback (resp)  {
                     <Form.Item
                       label={
                         <span>
-                          Nome Completo&nbsp;
-                          <Tooltip title="O Nome completo do Estudante?">
+                          {formatMessage({ id: 'student.name' })}&nbsp;
+                          <Tooltip title="O {formatMessage({id:'student.name'})} do Estudante?">
                             <Icon type="question-circle-o" />
                           </Tooltip>
                         </span>
@@ -743,7 +745,7 @@ handleApiCallback (resp)  {
                         <Input name="name" autoComplete="off" onChange={this.handleChangeInput} />,
                       )}
                     </Form.Item>
-                    <Form.Item label="Data de Nascimento">
+                    <Form.Item label={formatMessage({ id: 'student.birthdate' })}>
                       {getFieldDecorator('date-picker', {
                         rules: [
                           {
@@ -761,7 +763,7 @@ handleApiCallback (resp)  {
                         />,
                       )}
                     </Form.Item>
-                    <Form.Item label="Sexo">
+                    <Form.Item label={formatMessage({ id: 'student.sex' })}>
                       {getFieldDecorator('gender', {
                         initialValue: `${this.state.gender}`,
                         rules: [{ required: true, message: 'Por favor informe o Sexo!' }],
@@ -772,18 +774,18 @@ handleApiCallback (resp)  {
                           optionFilterProp="children"
                           onChange={this.handleSelectGender}
                           value={this.state.gender}
-                          onSearch={onSearch}
+                          
                           filterOption={(input, option) =>
                             option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                           }
                         >
-                          <Option value="M">Masculino</Option>
-                          <Option value="F">Femenino</Option>
+                          <Option value="M">{formatMessage({ id: 'student.male' })}</Option>
+                          <Option value="F">{formatMessage({ id: 'student.female' })}</Option>
                         </Select>,
                       )}
                     </Form.Item>
 
-                    <Form.Item label="Tipo de Documento">
+                    <Form.Item label={formatMessage({ id: 'student.document.type' })}>
                       {getFieldDecorator('doctype', {
                         initialValue: `${this.state.docType}`,
                         rules: [
@@ -801,16 +803,16 @@ handleApiCallback (resp)  {
                             option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                           }
                         >
-                          <Option value="BI">BI</Option>
-                          <Option value="Passaporte">Passaporte</Option>
-                          <Option value="Cedula">Cédula Pessoal</Option>
-                          <Option value="Bolentim">Bolentim de Nascimento</Option>
-                          <Option value="Nenhum">Sem Documento</Option>
+                          <Option value="BI">{formatMessage({id:'document.type.id'})}</Option>
+                          <Option value="Passaporte">{formatMessage({id:'document.type.personal.passport'})}</Option>
+                          <Option value="Cedula">{formatMessage({id:'document.type.personal.id.card'})}</Option>
+                          <Option value="Bolentim">{formatMessage({id:'document.type.birth.bollentin'})}</Option>
+                          <Option value="Nenhum">{formatMessage({id:'document.type.personal.nodoc'})}</Option>
                         </Select>,
                       )}
                     </Form.Item>
 
-                    <Form.Item label="Nr. de Documento" required="false">
+                    <Form.Item label={formatMessage({ id: 'student.document.number' })} required="false">
                       {getFieldDecorator('docNumber', {
                         initialValue: `${this.state.docNumber}`,
                         rules: [
@@ -823,13 +825,13 @@ handleApiCallback (resp)  {
                         <Input
                           style={{ width: '100%' }}
                           autoComplete="off"
-                          placeholder="Nr. de Documento"
+                          placeholder={formatMessage({ id: 'student.document.number' })}
                           name="docNumber"
                           onChange={this.handleChangeInput}
                         />,
                       )}{' '}
                     </Form.Item>
-                    <Form.Item label={<span>Morada</span>}>
+                    <Form.Item label={<span>{formatMessage({ id: 'student.address' })}</span>}>
                       {getFieldDecorator('studentAddress', {
                         initialValue: `${this.state.studentAddress}`,
                         rules: [
@@ -855,7 +857,7 @@ handleApiCallback (resp)  {
                             checked={this.state.isNew}
                             onChange={this.changeNewStudent.bind(this)}
                           >
-                            É novo Ingresso
+                            {formatMessage({ id: 'student.newcommer' })}
                           </Checkbox>
                         </Col>
                         <Col span={8}>
@@ -864,7 +866,7 @@ handleApiCallback (resp)  {
                             checked={this.state.isAlergicToFood}
                             onChange={this.changeIsAlergicToFood.bind(this)}
                           >
-                            É alérgico a Comida?
+                             {formatMessage({ id: 'student.alergic.tofood' })}
                           </Checkbox>
                         </Col>
                         <Col span={8}>
@@ -873,13 +875,13 @@ handleApiCallback (resp)  {
                             checked={this.state.isAlergicToMedicine}
                             onChange={this.changeIsAlergicMedicine.bind(this)}
                           >
-                            É alérgico a Medicamento?
+                            {formatMessage({ id: 'student.alergic.tomedicine' })}
                           </Checkbox>
                         </Col>
                       </Row>
 
                       {this.state.isAlergicToFood ? (
-                        <Form.Item label={<span>Lista de Alimentos</span>}>
+                        <Form.Item label={<span>{formatMessage({ id: 'student.food.list' })}</span>}>
                           {getFieldDecorator('alergicToFood', {
                             initialValue: `${this.state.alergicToFood}`,
                             rules: [
@@ -900,7 +902,7 @@ handleApiCallback (resp)  {
                       ) : null}
 
                       {this.state.isAlergicToMedicine ? (
-                        <Form.Item label={<span>Lista de Medicamentos</span>}>
+                        <Form.Item label={<span>{formatMessage({ id: 'student.medicine.list' })}</span>}>
                           {getFieldDecorator('alergicToMedicine', {
                             initialValue: `${this.state.alergicToMedicine}`,
                             rules: [
@@ -927,7 +929,7 @@ handleApiCallback (resp)  {
                         style={{ marginLeft: 180 }}
                         onClick={() => this.restart()}
                       >
-                        Cancelar
+                        {formatMessage({ id: 'global.cancel' })}
                       </Button>
                       <Button
                         style={{ marginLeft: 8 }}
@@ -935,7 +937,7 @@ handleApiCallback (resp)  {
                         htmlType="submit"
                         onClick={() => this.next1()}
                       >
-                        Próximo
+                        {formatMessage({ id: 'global.next' })}
                       </Button>
                     </Form.Item>
                   </Form>
@@ -944,7 +946,7 @@ handleApiCallback (resp)  {
             ) : null}
             {current == 1 ? (
               <Form {...formItemLayout} style={{ padding: '50px 0' }}>
-                <Form.Item label={<span>Nome do Pai</span>}>
+                <Form.Item label={<span>{formatMessage({ id: 'student.father.name' })}</span>}>
                   {getFieldDecorator('fatherName', {
                     initialValue: `${this.state.fatherName}`,
                     rules: [
@@ -963,7 +965,7 @@ handleApiCallback (resp)  {
                   )}
                 </Form.Item>
 
-                <Form.Item label={<span>Nome da Mãe</span>}>
+                <Form.Item label={<span>{formatMessage({ id: 'student.mother.name' })}</span>}>
                   {getFieldDecorator('motherName', {
                     initialValue: `${this.state.motherName}`,
                     rules: [
@@ -982,7 +984,7 @@ handleApiCallback (resp)  {
                   )}
                 </Form.Item>
 
-                <Form.Item label={<span>Contacto do Pai</span>}>
+                <Form.Item label={<span>{formatMessage({ id: 'student.father.contact' })}</span>}>
                   <Row gutter={8}>
                     <Col span={3}>
                       <Input defaultValue="+258" disabled="true" />
@@ -999,7 +1001,7 @@ handleApiCallback (resp)  {
                     </Col>
                   </Row>
                 </Form.Item>
-                <Form.Item label={<span>Contacto da Mãe</span>}>
+                <Form.Item label={<span>{formatMessage({ id: 'student.mother.contact' })}</span>}>
                   <Row gutter={8}>
                     <Col span={3}>
                       <Input defaultValue="+258" disabled="true" />
@@ -1017,10 +1019,10 @@ handleApiCallback (resp)  {
                 </Form.Item>
                 <Form.Item>
                   <Button type="danger" style={{ marginLeft: 180 }} onClick={() => this.restart()}>
-                    Cancelar
+                  {formatMessage({ id: 'global.cancel' })}
                   </Button>
                   <Button style={{ marginLeft: 8 }} onClick={() => this.prev()}>
-                    Anterior
+                  {formatMessage({ id: 'global.previous' })}
                   </Button>
 
                   <Button
@@ -1029,7 +1031,7 @@ handleApiCallback (resp)  {
                     htmlType="submit"
                     onClick={() => this.next2()}
                   >
-                    Próximo
+                    {formatMessage({ id: 'global.next' })}
                   </Button>
                 </Form.Item>
               </Form>
@@ -1051,16 +1053,16 @@ handleApiCallback (resp)  {
                         option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }
                     >
-                      <Option value="PAI">Pai</Option>
-                      <Option value="MAE">Mãe</Option>
-                      <Option value="TIO">Tio(a)</Option>
-                      <Option value="AVO">Avó</Option>
-                      <Option value="IRMAO">Irmão/Irmã</Option>
+                      <Option value="PAI">{formatMessage({ id: 'kinship.father' })}</Option>
+                      <Option value="MAE">{formatMessage({ id: 'kinship.mother' })}</Option>
+                      <Option value="TIO">{formatMessage({ id: 'kinship.ancle' })}</Option>
+                      <Option value="AVO">{formatMessage({ id: 'kinship.grandfather' })}</Option>
+                      <Option value="IRMAO">{formatMessage({ id: 'kinship.brother' })}</Option>
                     </Select>,
                   )}
                 </Form.Item>
 
-                <Form.Item label={<span>Nome do Encarregado</span>}>
+                <Form.Item label={<span>{formatMessage({ id:'student.sponsor.workplace'})}</span>}>
                   {getFieldDecorator('carierName', {
                     initialValue: `${this.state.carierName}`,
                     rules: [
@@ -1080,7 +1082,7 @@ handleApiCallback (resp)  {
                   )}
                 </Form.Item>
 
-                <Form.Item label={<span>Local de Trabalho</span>}>
+                <Form.Item label={<span>{formatMessage({ id:'student.sponsor.workplace'})}</span>}>
                   <Input
                     value={this.state.jobLocation}
                     name="jobLocation"
@@ -1088,7 +1090,7 @@ handleApiCallback (resp)  {
                   />
                 </Form.Item>
 
-                <Form.Item label={<span>Contacto</span>}>
+                <Form.Item label={<span>{formatMessage({ id:'student.sponsor.contact'})}</span>}>
                   <Row gutter={8}>
                     <Col span={3}>
                       <Input defaultValue="+258" disabled="true" />
@@ -1114,7 +1116,7 @@ handleApiCallback (resp)  {
                     </Col>
                   </Row>
                 </Form.Item>
-                <Form.Item label={<span>Morada</span>}>
+                <Form.Item label={<span>{formatMessage({ id:'student.sponsor.address'})}</span>}>
                   {getFieldDecorator('address', {
                     initialValue: `${this.state.address}`,
                     rules: [
@@ -1128,10 +1130,10 @@ handleApiCallback (resp)  {
                 </Form.Item>
                 <Form.Item>
                   <Button type="danger" style={{ marginLeft: 180 }} onClick={() => this.restart()}>
-                    Cancelar
+                  {formatMessage({ id:'global.cancel'})}
                   </Button>
                   <Button style={{ marginLeft: 8 }} onClick={() => this.prev()}>
-                    Anterior
+                  {formatMessage({ id:'global.previous'})}
                   </Button>
 
                   <Button
@@ -1140,7 +1142,7 @@ handleApiCallback (resp)  {
                     htmlType="submit"
                     onClick={() => this.next3()}
                   >
-                    Próximo
+                    {formatMessage({ id:'global.next'})}
                   </Button>
                 </Form.Item>
               </Form>
@@ -1148,7 +1150,7 @@ handleApiCallback (resp)  {
 
             {current == 3 ? (
               <Form {...formItemLayout} style={{ padding: '50px 0' }}>
-                <Form.Item label="Nível">
+                <Form.Item label={formatMessage({ id:'student.registration.level'})}>
                   {getFieldDecorator('frequency', {
                     initialValue: `${this.state.frequency}`,
                     rules: [{ required: true, message: 'Por favor informe o Nível!' }],
@@ -1168,7 +1170,7 @@ handleApiCallback (resp)  {
                     </Select>,
                   )}
                 </Form.Item>
-                <Form.Item label="Deconto">
+                <Form.Item label={formatMessage({ id:'student.registration.discount'})}>
                   <Select
                     showSearch
                     placeholder="Seleccione o desconto.."
@@ -1189,7 +1191,7 @@ handleApiCallback (resp)  {
                     <Option value="0.35">35%</Option>
                   </Select>
                 </Form.Item>
-                <Form.Item label="Formas de Pagamento">
+                <Form.Item label={formatMessage({ id:'student.registration.payment.method'})}>
                   {getFieldDecorator('paymentMethod', {
                     initialValue: `${this.state.paymentMethod}`,
                     rules: [
@@ -1205,11 +1207,11 @@ handleApiCallback (resp)  {
                         option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }
                     >
-                      <Option value="NUMERARIO">Numerário</Option>
-                      <Option value="POS">POS</Option>
-                      <Option value="TRANSFERENCIA">Transferência Bancária</Option>
-                      <Option value="DEPOSITO">Deposito Bancário</Option>
-                      <Option value="MPEZA">Mpeza</Option>
+                      <Option value="NUMERARIO">{formatMessage({ id:'payment.method.cash'})}</Option>
+                      <Option value="POS">{formatMessage({ id:'payment.method.pos'})}</Option>
+                      <Option value="TRANSFERENCIA">{formatMessage({ id:'payment.method.bank.transfer'})}</Option>
+                      <Option value="DEPOSITO">{formatMessage({ id:'payment.method.bank.deposit'})}</Option>
+                      <Option value="MPEZA">{formatMessage({ id:'payment.method.mpesa'})}</Option>
                     </Select>,
                   )}
                 </Form.Item>
@@ -1217,19 +1219,19 @@ handleApiCallback (resp)  {
                 <Form.Item>
                   <div className={styles.information} style={{ marginLeft: 180 }}>
                     <Descriptions column={1}>
-                      <Descriptions.Item label="Valor da Inscrição">
+                      <Descriptions.Item label={formatMessage({ id:'student.registration.amount'})}>
                         <Statistic value={this.state.registrationValue} suffix="MZN" />
                       </Descriptions.Item>
-                      <Descriptions.Item label="Valor Mensal">
+                      <Descriptions.Item label={formatMessage({ id:'student.registration.monthly.payment'})}>
                         <Statistic value={this.state.monthlyPayment} suffix="MZN" />
                       </Descriptions.Item>
                     </Descriptions>
                   </div>
                   <Button type="danger" style={{ marginLeft: 180 }} onClick={() => this.restart()}>
-                    Cancelar
+                  {formatMessage({ id:'global.cancel'})}
                   </Button>
                   <Button style={{ marginLeft: 8 }} onClick={() => this.prev()}>
-                    Anterior
+                  {formatMessage({ id:'global.previous'})}
                   </Button>
 
                   <Button
@@ -1238,7 +1240,7 @@ handleApiCallback (resp)  {
                     htmlType="submit"
                     onClick={() => this.next4()}
                   >
-                    Próximo
+                    {formatMessage({ id:'global.next'})}
                   </Button>
                 </Form.Item>
               </Form>
@@ -1247,88 +1249,88 @@ handleApiCallback (resp)  {
             {current == 4 ? (
               <Form {...formItemLayout} style={{ padding: '50px 0' }}>
                 <Alert
-                  message="Confirme os Dados abaixo e pressione em confirmar"
+                  message={formatMessage({id:'global.confirm.message'})}
                   type="info"
                   showIcon
                 />
 
                 <Descriptions
-                  title="Dados Pessoais"
+                  title={formatMessage({id:'student.personal.details'})}
                   style={{ marginBottom: 10, marginTop: 32 }}
                   column={4}
                   className={styles.information}
                 >
-                  <Descriptions.Item label="Nome Completo">{this.state.name}</Descriptions.Item>
-                  <Descriptions.Item label="Data de Nascimento">
+                  <Descriptions.Item label={formatMessage({id:'student.name'})}>{this.state.name}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({id:'student.birthdate'})}>
                     {this.state.birthDate.format('DD/MM/YYYY')}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Sexo">{this.state.gender}</Descriptions.Item>
-                  <Descriptions.Item label="Tipo de Documento">
+                  <Descriptions.Item label={formatMessage({id:'student.sex'})}>{this.state.gender}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({id:'student.document.type'})}>
                     {this.state.docType}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Nr. de Documento">
+                  <Descriptions.Item label={formatMessage({id:'student.document.number'})}>
                     {this.state.docNumber}
                   </Descriptions.Item>
                 </Descriptions>
                 <Divider style={{ marginBottom: 10 }} column={4} />
                 <Descriptions
-                  title="Filiação"
+                  title={formatMessage({id:'student.parents'})}
                   style={{ marginBottom: 10 }}
                   className={styles.information}
                 >
-                  <Descriptions.Item label="Nome do Pai">{this.state.fatherName}</Descriptions.Item>
-                  <Descriptions.Item label="Contacto do Pai">
+                  <Descriptions.Item label={formatMessage({id:'student.father.name'})}>{this.state.fatherName}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({id:'student.father.contact'})}>
                     {this.state.fatherContact}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Nome da Mãe">{this.state.motherName}</Descriptions.Item>
-                  <Descriptions.Item label="Contacto da Mãe">
+                  <Descriptions.Item label={formatMessage({id:'student.mother.name'})}>{this.state.motherName}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({id:'student.mother.contact'})}>
                     {this.state.motherContact}
                   </Descriptions.Item>
                 </Descriptions>
                 <Divider style={{ marginBottom: 10 }} />
                 <Descriptions
-                  title="Encarregado"
+                  title={formatMessage({id:'student.sponsor'})}
                   style={{ marginBottom: 10 }}
                   column={4}
                   className={styles.information}
                 >
-                  <Descriptions.Item label="Grau de Parentesco">
+                  <Descriptions.Item label={formatMessage({id:'student.kuinship.degree'})}>
                     {this.state.kinshipDegree}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Nome">{this.state.carierName}</Descriptions.Item>
-                  <Descriptions.Item label="Contacto">{this.state.carierContact}</Descriptions.Item>
-                  <Descriptions.Item label="Local de Trabalho">
+                  <Descriptions.Item label={formatMessage({id:'student.sponsor.name'})}>{this.state.carierName}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({id:'student.sponsor.contact'})}>{this.state.carierContact}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({id:'student.sponsor.workplace'})}>
                     {this.state.jobLocation}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Morada">{this.state.address}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({id:'student.sponsor.address'})}>{this.state.address}</Descriptions.Item>
                 </Descriptions>
                 <Divider style={{ marginBottom: 10 }} />
                 <Descriptions
-                  title="Inscrição"
+                  title={formatMessage({id:'student.registration.details'})}
                   style={{ marginBottom: 10 }}
                   column={4}
                   className={styles.information}
                 >
-                  <Descriptions.Item label="Frequência">
+                  <Descriptions.Item label={formatMessage({id:'student.registration.level'})}>
                     {
                       frequencies.filter(
                         f => f.level == this.state.frequency,
                       )[0].description
                     }
                   </Descriptions.Item>
-                  <Descriptions.Item label="Valor Mensal">
+                  <Descriptions.Item label={formatMessage({id:'student.registration.monthly.payment'})}>
                     {this.state.monthlyPayment}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Valor da Inscrição">
+                  <Descriptions.Item label={formatMessage({id:'student.registration.amount'})}>
                     {this.state.registrationValue}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Formas de Pagamento">
+                  <Descriptions.Item label={formatMessage({id:'student.registration.amount'})}>
                     {this.state.paymentMethod}
                   </Descriptions.Item>
                 </Descriptions>
                 <Form.Item>
                   <Button style={{ marginLeft: 180 }} onClick={() => this.prev()}>
-                    Anterior
+                    {formatMessage({id:'global.previous'})}
                   </Button>
 
                   <Button
@@ -1338,7 +1340,7 @@ handleApiCallback (resp)  {
                     htmlType="submit"
                     onClick={() => this.confirmTransaction()}
                   >
-                    Confirmar
+                    {formatMessage({id:'global.confirm'})}
                   </Button>
                 </Form.Item>
               </Form>
@@ -1347,8 +1349,8 @@ handleApiCallback (resp)  {
               <Form {...formItemLayout} style={{ padding: '50px 0' }}>
                 <Result
                   status="success"
-                  title="Operação Realizada com Sucesso!"
-                  subTitle="Cadastro realizado com Sucesso."
+                  title={formatMessage({id:'global.success.message'})}
+                  subTitle={formatMessage({id:'global.gegistration.success'})}
                   extra={extra}
                 />
                 <Form.Item></Form.Item>

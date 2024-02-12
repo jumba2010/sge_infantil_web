@@ -8,9 +8,13 @@ import api from '../../../../services/api';
 import { USER_KEY,SUCURSAL } from "../../../../services/auth";
 import months from '../../../../utils/months';
 import styles from './index.less';
+import { formatMessage } from 'umi-plugin-react/locale';
+import { connect } from 'dva';
 
-
-
+@connect(({ student, loading }) => ({
+  students: student.students,
+  frequencies: student.frequencies,
+}))
 class Pay extends React.Component {
 
   constructor(props) {
@@ -23,6 +27,7 @@ class Pay extends React.Component {
      loading:false,
      frequencies:[],
      paymentMethod:'',
+     levelDescription:'',
      success:false,
      receiptNumber:''
     };
@@ -49,21 +54,27 @@ class Pay extends React.Component {
   };
 
   confirmTransaction= async() =>{
+    const {registrationId,payments,payment,student} =this.state;
+    const indexToReplace = payments.findIndex((payment) => payment.id === payment.id);
+  
+    if (indexToReplace !== -1) {
+      // If a matching payment was found, replace it
+      payments[indexToReplace] = payment;
+    }
 
   this.setState({loading:true});
   await api.put('/api/payment/anull/'+this.props.match.params.paymentId, {
-  updatedBy:1,studentId:this.state.student.id })
-  .catch(function (error) { 
+    payments,registrationId,updatedBy:1,studentId:student.id })
+  .catch( (error) => { 
     notification.error({
         description:'Erro ao Processar o o seu pedido',
         message: 'Erro ao processar o pedido',
       });  
-     // this.setState({success:false,loading:false})   
+     this.setState({success:false,loading:false})   
+  }).then( data => {
+    this.setState({success:true,loading:false})
   });
  
-  this.setState({success:true,loading:false})
-
-
   }
 
   cancel(){
@@ -76,27 +87,40 @@ class Pay extends React.Component {
 
   }
 
-    componentDidMount() {
+  componentDidMount() {
+    this.fetchData();
+  }
+  
+  componentDidUpdate(prevProps) {
+    if (this.props.match.params.paymentId !== prevProps.match.params.paymentId) {
+      this.fetchData();
+    }
+  }
 
-    api.get('/api/payment/unique/'+this.props.match.params.paymentId).then(payment => {
-          api.get('/api/frequency/'+JSON.parse(localStorage.getItem(SUCURSAL)).id)
-      .then(res => {  
+        async fetchData() {
+          const { frequencies, students } = this.props;
+          const { paymentId } = this.props.match.params;
         
-        api.get('/api/student/unique/'+payment.data.studentId).then(student => {     
-          let level=res.data.filter(frq=>frq.level==student.data.level)[0]
-          let month=months.filter(m=>m.code==payment.data.month)[0]
-                 this.setState({payment:payment.data,student:student.data,frequencies:res.data,level:level?level.description:'',month:month?month.desc:''})
-            
-              })
-                 
-      })
-     
-     
-      
-
-
-       
-              })
+          const registration = students.find((reg) => {
+            const payments = reg.payments;
+            const payment = !payments?{}:payments.find((p) => p.id === paymentId);
+            if (payment) {
+              const month = months.find((m) => m.code === payment.month);
+              const level = frequencies.find((frq) => frq.level === reg.student.level);
+        
+              this.setState({
+                payment: payment,
+                registrationId:reg.id,
+                payments:payments,
+                month: month?.desc,
+                student: reg.student,
+                levelDescription: level?.description,
+              });
+        
+              return true;
+            }
+            return false;
+          });
         }
 
 
@@ -129,7 +153,7 @@ class Pay extends React.Component {
        <Alert message="Anular Pagamento" description="Para anular este Pagamento, clique em Anular" type="info" showIcon></Alert>
        <Row style={{ padding: '50px 20px' }}>
      <Descriptions title={this.state.student.name} >
-    <Descriptions.Item label="Nível">{this.state.level}</Descriptions.Item>
+    <Descriptions.Item label="Nível">{this.state.levelDescription}</Descriptions.Item>
     <Descriptions.Item label="Data de Inscrição">{moment(this.state.student.createdAt).format('YYYY-MM-DD')}</Descriptions.Item>
     <Descriptions.Item label="Data Limite de Pagamento">{moment(this.state.payment.limitDate).format('YYYY-MM-DD')}</Descriptions.Item>
     <Descriptions.Item label="Ano">{this.state.payment.year}</Descriptions.Item>
@@ -153,7 +177,7 @@ class Pay extends React.Component {
       <Form {...formItemLayout}  onSubmit={this.handleSubmit}>
                   <Form.Item >
 <Button  type="danger" onClick={() => this.cancel()}>
-              Cancelar
+              {formatMessage({id:'global.cancel'})}
             </Button>
        
             <Button style={{ marginLeft: 8 }}  loading={this.state.loading} type="primary" htmlType="submit" onClick={() => this.confirmTransaction()}>
@@ -169,7 +193,7 @@ class Pay extends React.Component {
   <Form {...formItemLayout} style={{ padding: '50px 0' }}>
 <Result
     status="success"
-    title="Operação Realizada com Sucesso!"
+    title={formatMessage({id:'global.success.message'})}
     subTitle={`Pagamento anulado com Sucesso `}
     extra={extra}
     />

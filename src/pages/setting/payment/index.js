@@ -111,12 +111,12 @@ class EditableTable extends React.Component {
                     onClick={() => this.save(form, record.key)}
                     style={{ marginRight: 8 }}
                   >
-                    Salvar
+                    {formatMessage({id:'global.submit'})}
                   </Button>
                 )}
               </EditableContext.Consumer>
               <Popconfirm title="Tem a certeza que dezeja cancelar ?" onConfirm={() => this.cancel(record.key)}>
-                <Button  type='danger'>Cancelar</Button>
+                <Button  type='danger'>{formatMessage({id:'global.cancel'})}</Button>
               </Popconfirm>
             </span>
           ) : (

@@ -29,6 +29,7 @@ import moment from 'moment';
 import months from '../../../utils/months';
 import {getLastThreeYears} from './../../utils/DateTimeUtils'
 import { connect } from 'dva';
+import { formatMessage } from 'umi-plugin-react/locale';
 
 const FormItem = Form.Item;
 const pageSize = 6;
@@ -48,8 +49,8 @@ class Paid extends React.Component {
       student: {},
       lastdata: [],
       payments: [],
-      data: [],
       frequencies: [],
+      data: [],
       pagination: {},
       expandForm: false,
       loadign: true,
@@ -112,7 +113,7 @@ class Paid extends React.Component {
       filteredData = filteredData.filter(d => d.month === this.state.filterMonth);
     }
     if (this.state.filterLevel) {
-      let freq = JSON.parse(localStorage.getItem('FREQUENCIES')).filter(frq => frq.level === this.state.filterLevel)[0];
+      let freq = this.props.frequencies.filter(frq => frq.level === this.state.filterLevel)[0];
       filteredData = filteredData.filter(d => d.frequency === freq.description);
     }
     this.setState({ data: filteredData });
@@ -159,7 +160,7 @@ class Paid extends React.Component {
                   placeholder="Pesquise pelo Nível ..."
                   style={{ width: '100%' }}
                 >
-                  {JSON.parse(localStorage.getItem('FREQUENCIES')).map(f => (
+                  {this.props.frequencies.map(f => (
                     <Option value={f.level}>{f.description}</Option>
                   ))}
                 </Select>,
@@ -245,8 +246,8 @@ class Paid extends React.Component {
     const data = [];
 
     for (let i = 0; i < paidPayments.length; i++) {
-      let freq = frequencies.filter(
-        frq => frq.level === paidPayments[i].student.level,
+      let freq = this.props.frequencies.filter(
+        frq => frq.level == paidPayments[i].student.level,
       )[0];
       let month = months.filter(m => m.code == paidPayments[i].month)[0].desc;
       data.push({

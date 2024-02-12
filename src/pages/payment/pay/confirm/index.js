@@ -9,6 +9,7 @@ import { USER_KEY,SUCURSAL } from "../../../../services/auth";
 import months from '../../../../utils/months';
 import styles from './index.less';
 import { connect } from 'dva';
+import { formatMessage } from 'umi-plugin-react/locale';
 
 @connect(({ student, loading }) => ({
   students: student.students,
@@ -54,24 +55,32 @@ class Pay extends React.Component {
     });
   };
 
-  confirmTransaction= async() =>{
-const {paymentMethod,receiptNumber}=this.state;
+ confirmTransaction = async() =>{
+  const {paymentMethod,receiptNumber}=this.state;
   
 if(paymentMethod && receiptNumber){
   this.setState({loading:true});
 
   const {registrationId,payments,payment,student} =this.state;
-  const indexToReplace = payments.findIndex((payment) => payment.id === payment.id);
 
+
+
+
+
+  const indexToReplace = payments.findIndex((p) => p.id === payment.id);
+  console.log('Before',payments)
+   // If a matching payment was found, replace it
   if (indexToReplace !== -1) {
-    // If a matching payment was found, replace it
     payments[indexToReplace] = payment;
+    console.log('After:',payments)
   }
+
+  this.setState({success:true,loading:false})
   
   await api.put('/api/payment/pay/'+this.props.match.params.paymentId, {
     payments,registrationId,
     paymentMethod,receiptNumber,updatedBy:1,studentId:student.id })
-    .then( res =>{
+    .then( res => {
       this.props.dispatch({
         type: 'student/fetchActiveStudents'
       });
@@ -84,10 +93,6 @@ if(paymentMethod && receiptNumber){
         type: 'payment/fetchPaidPayments',
       });
 
-      // this.props.dispatch({
-      //   type: 'student/addStudent',
-      //   payload: { registrationId: registrationId },
-      // });
       this.setState({success:true,loading:false})
     })
     .catch(function (error) { 
@@ -126,12 +131,12 @@ if(paymentMethod && receiptNumber){
     const { paymentId } = this.props.match.params;
   
     const registration = students.find((reg) => {
-      const payments = reg.payments;
-      const payment = payments.find((p) => p.id === paymentId);
+      let payments = reg.payments;
+      let payment = !payments?{}:payments.find((p) => p.id === paymentId);
       if (payment) {
         const month = months.find((m) => m.code === payment.month);
         const level = frequencies.find((frq) => frq.level === reg.student.level);
-  
+        console.log('Yes',payment,payments)
         this.setState({
           payment: payment,
           registrationId:reg.id,
@@ -140,11 +145,12 @@ if(paymentMethod && receiptNumber){
           student: reg.student,
           levelDescription: level?.description,
         });
-  
         return true;
       }
       return false;
     });
+
+   
   }
   
 
@@ -233,11 +239,11 @@ if(paymentMethod && receiptNumber){
                   </Form.Item> 
                   <Form.Item >
 <Button style={{ marginLeft: 180 }} type="danger" onClick={() => this.cancel()}>
-              Cancelar
+              {formatMessage({id:'global.cancel'})}
             </Button>
        
             <Button style={{ marginLeft: 8 }}  loading={this.state.loading} type="primary" htmlType="submit" onClick={() => this.confirmTransaction()}>
-              Confirmar
+              {formatMessage({id:'global.confirm'})}
             </Button>        
         
         </Form.Item>
@@ -249,7 +255,7 @@ if(paymentMethod && receiptNumber){
   <Form {...formItemLayout} style={{ padding: '50px 0' }}>
 <Result
     status="success"
-    title="Operação Realizada com Sucesso!"
+    title={formatMessage({id:'global.success.message'})}
     subTitle={`Pagamento realizado com Sucesso com a referência ${this.state.receiptNumber}`}
     extra={extra}
     />

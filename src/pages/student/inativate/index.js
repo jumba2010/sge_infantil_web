@@ -6,6 +6,7 @@ import moment from 'moment';
 import { notification } from 'antd';
 import api from './../../../services/api';
 import { USER_KEY,SUCURSAL } from "./../../../services/auth";
+import { formatMessage } from 'umi-plugin-react/locale';
 import styles from './index.less';
 import { connect } from 'dva';
 const { TextArea } = Input;
@@ -177,11 +178,11 @@ if(inativationReason){
                
                   <Form.Item >
 <Button style={{ marginLeft: 180 }} type="danger" onClick={() => this.cancel()}>
-              Cancelar
+              {formatMessage({id:'global.cancel'})}
             </Button>
        
             <Button style={{ marginLeft: 8 }}  loading={this.state.loading} type="primary" htmlType="submit" onClick={() => this.confirmTransaction()}>
-              Confirmar
+              {formatMessage({id:'global.confirm'})}
             </Button>        
         
         </Form.Item>
@@ -193,7 +194,7 @@ if(inativationReason){
   <Form {...formItemLayout} style={{ padding: '50px 0' }}>
 <Result
     status="success"
-    title="Operação Realizada com Sucesso!"
+    title={formatMessage({id:'global.success.message'})}
     subTitle={`Inscrição anulada com Sucesso `}
     extra={extra}
     />

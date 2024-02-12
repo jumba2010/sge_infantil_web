@@ -6,6 +6,7 @@ import {
   message,
 } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import { formatMessage } from 'umi-plugin-react/locale';
 import { notification } from 'antd';
 import api, { baseURL } from '../../../services/api';
 import { USER_KEY, SUCURSAL } from "../../../services/auth";
@@ -447,10 +448,10 @@ class Paid extends React.Component {
           onCancel={this.handleCancel.bind(this)}
           footer={[
             <Button key="back" onClick={this.handleCancel.bind(this)}>
-              Cancelar
+              {formatMessage({id:'global.cancel'})}
             </Button>,
             <Button key="submit" htmlType="submit" type="primary" onClick={this.handleOk.bind(this)} loadign={this.state.saving}>
-              Confirmar
+              {formatMessage({id:'global.confirm'})}
             </Button>,
           ]}
         >

@@ -203,8 +203,12 @@ class Login extends Component<LoginProps, LoginState> {
         });
       } else {
         localStorage.setItem(SUCURSAL, JSON.stringify(userDetails.data.sucursals[0]));
-        let response = await API.get('/api/frequency/' + userDetails.data.sucursals[0].id);
-        localStorage.setItem('FREQUENCIES', JSON.stringify(response.data));
+        const dispatch = this.props.dispatch;
+        if (dispatch) {
+          dispatch({
+            type: 'student/fetchFrequencies',
+          });
+        }
         this.props.history.push('/dashboard/analysis');
       }
     } catch (err) {

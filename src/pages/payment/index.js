@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Steps,Card, Button, message,Upload, Icon,Form, Input,  Select, DatePicker,Col ,Row,Tooltip,Layout,Alert,Result  } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import { formatMessage } from 'umi-plugin-react/locale';
 const InputGroup = Input.Group;
 const { Step } = Steps;
 const { TextArea } = Input;
@@ -24,7 +25,7 @@ const steps = [
     content: '2',
   },
   {
-    title: 'Confirmar',
+    title: formatMessage({id:'global.confirm'}),
     content: '3',
   },
   {
@@ -286,9 +287,9 @@ class Student extends React.Component {
         initialValue: 'BI',
       })(
         <Select style={{ width: 200 }}>
-          <Option value="BI">BI</Option>
-          <Option value="cedula">Cédula Pessoal</Option>
-          <Option value="Nenhum">Sem Documento</Option>
+          <Option value="BI">{formatMessage({id:'document.type.id'})}</Option>
+          <Option value="cedula">{formatMessage({id:'document.type.personal.id.card'})}</Option>
+          <Option value="Nenhum">{formatMessage({id:'document.type.personal.nodoc'})}</Option>
        
                  </Select>,
       );
@@ -329,8 +330,8 @@ current==0?
         <Form.Item
           label={
             <span>
-              Nome Completo&nbsp;
-              <Tooltip title="O Nome completo do Estudante?">
+              {formatMessage({id:'student.name'})}&nbsp;
+              <Tooltip title="O {formatMessage({id:'student.name'})} do Estudante?">
                 <Icon type="question-circle-o" />
               </Tooltip>
             </span>
@@ -385,9 +386,9 @@ current==0?
       option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
     }
   >
- <Option value="BI">BI</Option>
-          <Option value="cedula">Cédula Pessoal</Option>
-          <Option value="Nenhum">Sem Documento</Option>
+ <Option value="BI">{formatMessage({id:'document.type.id'})}</Option>
+          <Option value="cedula">{formatMessage({id:'document.type.personal.id.card'})}</Option>
+          <Option value="Nenhum">{formatMessage({id:'document.type.personal.nodoc'})}</Option>
   </Select> )}
         </Form.Item>
 
@@ -396,7 +397,7 @@ current==0?
         </Form.Item>        
            <Form.Item >          
             <Button style={{ marginLeft: 180 }} type="primary" htmlType="submit" onClick={() => this.next1()}>
-              Próximo
+              {formatMessage({id:'global.next'})}
             </Button>       
         
         </Form.Item>
@@ -474,11 +475,11 @@ current==1?
         </Form.Item> 
 <Form.Item >
 <Button style={{ marginLeft: 180 }} onClick={() => this.prev()}>
-              Anterior
+              {formatMessage({id:'global.previous'})}
             </Button>
        
             <Button style={{ marginLeft: 8 }}  type="primary"  htmlType="submit" onClick={() => this.next2()}>
-              Próximo
+              {formatMessage({id:'global.next'})}
             </Button>
         
         
@@ -570,11 +571,11 @@ current==2?
         </Form.Item>  
 <Form.Item >
 <Button style={{ marginLeft: 180 }} onClick={() => this.prev()}>
-              Anterior
+              {formatMessage({id:'global.previous'})}
             </Button>
        
             <Button style={{ marginLeft: 8 }}  type="primary" htmlType="submit" onClick={() => this.next3()}>
-              Próximo
+              {formatMessage({id:'global.next'})}
             </Button>
         
         
@@ -668,11 +669,11 @@ current==3?
         
 <Form.Item >
 <Button style={{ marginLeft: 180 }} onClick={() => this.prev()}>
-              Anterior
+              {formatMessage({id:'global.previous'})}
             </Button>
        
             <Button style={{ marginLeft: 8 }}  type="primary" htmlType="submit" onClick={() => this.next()}>
-              Próximo
+              {formatMessage({id:'global.next'})}
             </Button>
         
         
@@ -686,11 +687,11 @@ current==4?
 <Alert message="Confirme os Dados abaixo e pressione em confirmar" type="info" showIcon />        
 <Form.Item >
 <Button style={{ marginLeft: 180 }} onClick={() => this.prev()}>
-              Anterior
+              {formatMessage({id:'global.previous'})}
             </Button>
        
             <Button style={{ marginLeft: 8 }}  type="primary" htmlType="submit" onClick={() => this.next()}>
-              Confirmar
+              {formatMessage({id:'global.confirm'})}
             </Button>
         
         

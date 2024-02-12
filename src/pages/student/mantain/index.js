@@ -31,6 +31,7 @@ import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { notification } from 'antd';
 import api, { baseURL } from '../../../services/api';
 import { USER_KEY, SUCURSAL } from '../../../services/auth';
+import { formatMessage } from 'umi-plugin-react/locale';
 import moment from 'moment';
 import axios from 'axios';
 const { TextArea } = Input;
@@ -608,7 +609,7 @@ class ListStudent extends React.Component {
                         column={2}
                         className={styles.information}
                       >
-                        <Descriptions.Item label="Nome Completo">{record.student.name}</Descriptions.Item>
+                        <Descriptions.Item label={formatMessage({id:'student.name'})}>{record.student.name}</Descriptions.Item>
                         <Descriptions.Item label="Data de Nascimento">
                           {record.birthDate}
                         </Descriptions.Item>
@@ -713,7 +714,7 @@ class ListStudent extends React.Component {
           onCancel={this.handleCancel.bind(this)}
           footer={[
             <Button key="back" onClick={this.handleCancel.bind(this)}>
-              Cancelar
+              {formatMessage({id:'global.cancel'})}
             </Button>,
             <Button
               key="submit"
@@ -722,7 +723,7 @@ class ListStudent extends React.Component {
               onClick={this.handleOk.bind(this)}
               loadign={this.state.saving}
             >
-              Confirmar
+              {formatMessage({id:'global.confirm'})}
             </Button>,
           ]}
         >

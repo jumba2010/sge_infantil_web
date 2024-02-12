@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { getToken } from './auth';
 
-export const baseURL = 'https://608xjr0gcg.execute-api.us-east-1.amazonaws.com/test/';
+export const baseURL = 'https://e4a3o1pyzd.execute-api.us-east-1.amazonaws.com/dev/';
 
 const api = axios.create({
-  baseURL: 'https://608xjr0gcg.execute-api.us-east-1.amazonaws.com/test/',
+  baseURL: 'https://e4a3o1pyzd.execute-api.us-east-1.amazonaws.com/dev/',
   rejectUnauthorized: false
 });
 

@@ -20,7 +20,7 @@ const steps = [
   },
 
   {
-    title: 'Confirmar',
+    title: formatMessage({id:'global.confirm'}),
     content: '3',
   },
   {
@@ -258,7 +258,7 @@ let User= await api.post("/api/user", {
         <Card>
         <Steps current={current} size='default'>
           {steps.map(item => (
-            <Step key={item.title} title={item.title} icon={item.title==='Confirmar' && current==4 && this.state.issaving?<Icon type="loading" />:null} />
+            <Step key={item.title} title={item.title} icon={item.title==='{formatMessage({id:'global.confirm'})}' && current==4 && this.state.issaving?<Icon type="loading" />:null} />
           ))}
         </Steps>
         <div className="steps-content">
@@ -288,8 +288,8 @@ current==0?
         <Form.Item
           label={
             <span>
-              Nome Completo&nbsp;
-              <Tooltip title="O Nome completo do Estudante?">
+              {formatMessage({id:'student.name'})}&nbsp;
+              <Tooltip title="O {formatMessage({id:'student.name'})} do Estudante?">
                 <Icon type="question-circle-o" />
               </Tooltip>
             </span>
@@ -376,7 +376,7 @@ current==0?
 
            <Form.Item >          
             <Button style={{ marginLeft: 180 }} type="primary" htmlType="submit" onClick={() => this.next1()}>
-              Próximo
+              {formatMessage({id:'global.next'})}
             </Button>       
         
         </Form.Item>
@@ -394,7 +394,7 @@ current==1?
 <Alert message="Confirmação" description="Confirme os Dados abaixo e pressione em confirmar" type="info" showIcon /> 
 
 <Descriptions title="Dados Pessoais" style={{ marginBottom: 10,marginTop:32 }} column={2}>
-<Descriptions.Item label="Nome Completo">{this.state.name}</Descriptions.Item>
+<Descriptions.Item label="{formatMessage({id:'student.name'})}">{this.state.name}</Descriptions.Item>
             <Descriptions.Item label="Email">{this.state.email}</Descriptions.Item>
             <Descriptions.Item label="Contacto">{this.state.contact}</Descriptions.Item>
             <Descriptions.Item label="Morada">{this.state.address}</Descriptions.Item>
@@ -404,11 +404,11 @@ current==1?
         
 <Form.Item >
 <Button style={{ marginLeft: 180 }} onClick={() => this.prev()}>
-              Anterior
+              {formatMessage({id:'global.previous'})}
             </Button>
        
             <Button style={{ marginLeft: 8 }}  type="primary" loading={this.state.loading} htmlType="submit" onClick={() => this.confirmTransaction()}>
-              Confirmar
+              {formatMessage({id:'global.confirm'})}
             </Button>        
         
         </Form.Item>
@@ -418,7 +418,7 @@ current==1?
   <Form {...formItemLayout} style={{ padding: '50px 0' }}>
 <Result
     status="success"
-    title="Operação Realizada com Sucesso!"
+    title={formatMessage({id:'global.success.message'})}
     subTitle={`Cadastro realizado com Sucesso. UserName: ${this.state.username}`}
     extra={extra}
     />

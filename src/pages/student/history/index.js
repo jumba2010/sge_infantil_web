@@ -30,16 +30,20 @@ import api, { baseURL } from '../../../services/api';
 import { USER_KEY, SUCURSAL } from '../../../services/auth';
 import moment from 'moment';
 import axios from 'axios';
+import { connect } from 'dva';
 const { TextArea } = Input;
 const { Text } = Typography;
 const { TabPane } = Tabs;
-const frequencies = JSON.parse(localStorage.getItem('FREQUENCIES'));
+
 import styles from './index.less';
 import paymenRowRender from './utils/paymentRowRender.js';
 const FormItem = Form.Item;
 
 const pageSize = 6;
 
+@connect(({student }) => ({
+  frequencies:student.frequencies
+}))
 class StudentHistory extends React.Component {
   constructor(props) {
     super(props);
@@ -151,7 +155,7 @@ class StudentHistory extends React.Component {
                   placeholder="Pesqise pelo Nível ..."
                   style={{ width: '100%' }}
                 >
-                  {frequencies.map(f => (
+                  {this.props.frequencies.map(f => (
                     <Option value={f.level}>{f.description}</Option>
                   ))}
                 </Select>,
@@ -200,7 +204,7 @@ class StudentHistory extends React.Component {
                   placeholder="Pesquise pelo Nível ..."
                   style={{ width: '100%' }}
                 >
-                  {JSON.parse(frequencies).map(f => (
+                  {this.props.frequencies.map(f => (
                     <Option value={f.level}>{f.description}</Option>
                   ))}
                 </Select>,
@@ -306,7 +310,7 @@ class StudentHistory extends React.Component {
         dataIndex: 'level',
         key: 'level',
         render: (_, record) => (
-          <Text>{frequencies.filter(frq => frq.level === record.level)[0].description}</Text>
+          <Text>{this.props.frequencies.filter(frq => frq.level === record.level)[0].description}</Text>
         ),
       },
       {
@@ -330,7 +334,7 @@ class StudentHistory extends React.Component {
         dataIndex: 'level',
         key: 'level',
         render: (_, record) => (
-          <Text>{frequencies.filter(frq => frq.id === record.classId)[0].description}</Text>
+          <Text>{this.props.frequencies.filter(frq => frq.id === record.classId)[0].description}</Text>
         ),
       },
       {
@@ -384,7 +388,7 @@ class StudentHistory extends React.Component {
                         column={2}
                         className={styles.information}
                       >
-                        <Descriptions.Item label="Nome Completo">{record.name}</Descriptions.Item>
+                        <Descriptions.Item label="{formatMessage({id:'student.name'})}">{record.name}</Descriptions.Item>
                         <Descriptions.Item label="Data de Nascimento">
                           {record.birthDate}
                         </Descriptions.Item>

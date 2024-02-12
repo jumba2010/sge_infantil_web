@@ -349,13 +349,7 @@ export default {
                   path: '/setting/payment',
                   component: './setting/payment',
                 },
-                {
-                  name: 'sincronize',
-                  icon: 'tool',
-                  authority: ['admin'],
-                  path: '/setting/sincronize',
-                  component: './setting/sincronize',
-                },
+               
               ],
             },
             {
