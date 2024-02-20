@@ -8,6 +8,8 @@ import './index.less';
 import { Label } from 'bizcharts';
 import { connect } from 'dva';
 
+import { formatMessage } from 'umi-plugin-react/locale';
+
 const EditableContext = React.createContext();
 
 
