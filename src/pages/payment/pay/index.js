@@ -29,11 +29,13 @@ import { USER_KEY, SUCURSAL } from '../../../services/auth';
 import moment from 'moment';
 import styles from './index.less';
 import months from '../../../utils/months';
+
+import { findActiveStudents } from '@/services/student';
+
 const FormItem = Form.Item;
 const pageSize = 6;
 
-@connect(({ student, loading }) => ({
-  students: student.students,
+@connect(({ student }) => ({
   frequencies: student.frequencies,
 }))
 class ListStudent extends React.Component {
@@ -49,7 +51,7 @@ class ListStudent extends React.Component {
       frequencies: [],
       pagination: {},
       expandForm: false,
-      loadign: true,
+      loading: true,
     };
 
 
@@ -269,36 +271,37 @@ class ListStudent extends React.Component {
     this.setState({ paginatio: pager });
   };
 
-  componentWillMount() {
+  componentDidMount() {
     this.searchFields();
   }
 
+
   searchFields() {
 
-    const { students, frequencies } = this.props;
-    const pagination = { ...this.state.pagination };
-    pagination.total = students.length;
-    pagination.pageSize = pageSize;
-
-    const data = [];
-    for (let i = 0; i < students.length; i++) {
-      let freq = frequencies.filter(
-        f => f.level + "" == "" + students[i].student.level,
-      )[0];
-
-      data.push({
-        key: students[i].student.id,
-        name: students[i].student.name,
-        currentMonthlyPayment: students[i].student.currentMonthlyPayment,
-        birthDate: students[i].student.birthDate,
-        frequency: freq.description,
-        createdAt: moment(students[i].student.createdAt).format('YYYY-MM-DD'),
-        payments: students[i].payments,
-        studentId:students[i].student.id
+    findActiveStudents().then( response => {
+      let students = response.data;
+      const pagination = { ...this.state.pagination };
+      pagination.total = students.length;
+      const data = students.map(student => {
+        const freq = this.props.frequencies.find(f => f.level === student.student.level);
+  
+        return {
+          key: student.student.id,
+          name: student.student.name,
+          currentMonthlyPayment: student.student.currentMonthlyPayment,
+          birthDate: student.student.birthDate,
+          frequency: freq ? freq.description : '', // Check if freq exists
+          createdAt: moment(student.student.createdAt).format('YYYY-MM-DD'),
+          payments: student.payments,
+          studentId: student.student.id
+        };
       });
-    }
+  
+      this.setState({ data, students: data, lastdata: data, loading: false, pagination });
 
-    this.setState({ data, students: data, lastdata: data, loadign: false, pagination });
+    })
+
+ 
   }
 
   render() {
@@ -423,22 +426,20 @@ class ListStudent extends React.Component {
     };
 
     return (
-      <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <Table
               className="components-table-demo-nested"
               columns={columns}
-              loading={this.state.loadign}
               expandedRowRender={expandedPaymentRowRender}
               pagination={this.state.pagination}
               dataSource={this.state.data}
+              loading={this.state.loading}
               onChange={this.handleChangeTable}
             />
           </div>
         </Card>
-      </PageHeaderWrapper>
     );
   }
 }

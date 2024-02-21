@@ -233,9 +233,6 @@ console.log(freq)
         activatedBy: loggedUser.id,
       })
       .then( data => {
-        this.props.dispatch({
-          type: 'student/fetchActiveStudents'
-        });
      this.searchFields();
      this.setState({
       saving: false,

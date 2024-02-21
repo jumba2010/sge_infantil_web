@@ -32,6 +32,7 @@ import { notification } from 'antd';
 import api, { baseURL } from '../../../services/api';
 import { USER_KEY, SUCURSAL } from '../../../services/auth';
 import { formatMessage } from 'umi-plugin-react/locale';
+import { findActiveStudents } from '@/services/student';
 import moment from 'moment';
 import axios from 'axios';
 const { TextArea } = Input;
@@ -50,8 +51,7 @@ const menu = (
   </Menu>
 );
 
-@connect(({ student, loading }) => ({
-  students: student.students,
+@connect(({ student }) => ({
   frequencies: student.frequencies,
 }))
 class ListStudent extends React.Component {
@@ -64,6 +64,7 @@ class ListStudent extends React.Component {
       sync: false,
       lastdata: [],
       students: [],
+      loading:true,
       notifications: [],
       lastNotificationdata: [],
       payments: [],
@@ -439,14 +440,37 @@ class ListStudent extends React.Component {
   componentDidMount() {
 
     const pagination = { ...this.state.pagination };
-    pagination.total = this.students.length;
+    pagination.total = this.state.students.length;
     pagination.pageSize = pageSize;
-    let studentIds = this.students.map(s => s.student.id);
-    this.searchFields();
+
+    findActiveStudents().then( response => {
+     let data = response.data;
+      this.setState({ students: data });
+
+      const pagination = { ...this.state.pagination };
+    pagination.total = data.length;
+    pagination.pageSize = pageSize;
+    let studentIds = data.map(s => s.id);
+
+
+    this.setState({
+      studentIds,
+      originaldata:data,
+      data: data,
+      students:data,
+      lastdata: data,
+      loading: false,
+      pagination,
+    });
+
+    })
+
+    let studentIds = this.state.students.map(s => s.student.id);
+   
   }
 
   searchNotifications() {
-    this.setState({ sync: true });
+   
     api
       .get('/api/smsntification/sucursal/' + JSON.parse(localStorage.getItem(SUCURSAL)).id)
       .then(res => {
@@ -462,21 +486,23 @@ class ListStudent extends React.Component {
           sync: false,
         });
       });
+
+
   }
 
   searchFields() {
     const pagination = { ...this.state.pagination };
-    pagination.total = this.students.length;
+    pagination.total = this.state.students.length;
     pagination.pageSize = pageSize;
-    let studentIds = this.students.map(s => s.id);
+    let studentIds = this.state.students.map(s => s.id);
 
 
     this.setState({
       studentIds,
-      originaldata:this.students,
-      data: this.students,
-      students: this.students,
-      lastdata: this.students,
+      originaldata:this.state.students,
+      data: this.state.students,
+      students: this.state.students,
+      lastdata: this.state.students,
       loadign: false,
       pagination,
     });
@@ -600,7 +626,7 @@ class ListStudent extends React.Component {
                   columnTitle="Seleccionar Todos"
                   rowSelection={rowSelection}
                   rowKey={record => record.student.id}
-                  loading={this.loadign}
+                  loading={this.state.loading}
                   onSelectAll={this.onSelectAll}
                   expandedRowRender={record => (
                     <div style={{ marginBottom: 10, marginTop: 32 }}>

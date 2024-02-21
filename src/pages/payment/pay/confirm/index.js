@@ -68,7 +68,6 @@ if(paymentMethod && receiptNumber){
 
 
   const indexToReplace = payments.findIndex((p) => p.id === payment.id);
-  console.log('Before',payments)
    // If a matching payment was found, replace it
   if (indexToReplace !== -1) {
     payments[indexToReplace] = payment;
@@ -81,10 +80,6 @@ if(paymentMethod && receiptNumber){
     payments,registrationId,
     paymentMethod,receiptNumber,updatedBy:1,studentId:student.id })
     .then( res => {
-      this.props.dispatch({
-        type: 'student/fetchActiveStudents'
-      });
-
       this.props.dispatch({
         type: 'payment/fetchUnpaidPayments',
       });

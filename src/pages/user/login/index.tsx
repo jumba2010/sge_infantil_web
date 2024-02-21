@@ -85,8 +85,9 @@ class Login extends Component<LoginProps, LoginState> {
     if (this.state.sucursal) {
       let sucursal = this.state.sucursals.filter(s => s.code === this.state.sucursal)[0];
       localStorage.setItem(SUCURSAL, JSON.stringify(sucursal));
-      
+     
       const dispatch = this.props.dispatch;
+      console.log(sucursal)
       if (dispatch) {
         dispatch({
           type: 'student/fetchFrequencies',
@@ -95,6 +96,7 @@ class Login extends Component<LoginProps, LoginState> {
         dispatch({
           type: 'student/fetchActiveStudents',
         });
+        console.log('Student called')
 
         dispatch({
           type: 'payment/fetchUnpaidPayments',

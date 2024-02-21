@@ -336,9 +336,6 @@ class Student extends React.Component {
 
 handleApiCallback (resp)  {
     let registrationId = resp.data.id;
-    this.props.dispatch({
-      type: 'student/fetchActiveStudents'
-    });
 
     const current = this.state.current + 1;
     this.setState({ current, issaving: false });

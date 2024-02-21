@@ -326,9 +326,6 @@ api.put("/api/student/"+this.state.student.id, {
   const current = this.state.current + 1;      
     this.setState({ current,issaving:false });
     window.scrollTo(0, 0);  
-  this.props.dispatch({
-    type: 'student/fetchActiveStudents'
-  });
 
   this.props.dispatch({
     type: 'payment/fetchUnpaidPayments',
