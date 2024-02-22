@@ -622,7 +622,7 @@ console.log(freq)
           visible={this.state.visible}
           title="Renovação de inscrição"
           onOk={this.handleOk}
-
+          confirmLoading={this.state.saving}
           width={800}
           onCancel={this.handleCancel.bind(this)}
           footer={[
