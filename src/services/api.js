@@ -1,11 +1,11 @@
 import axios from 'axios';
-import { getToken } from './auth';
+// import { getToken } from './auth';
 
-export const baseURL = 'https://e4a3o1pyzd.execute-api.us-east-1.amazonaws.com/dev/';
+export const baseURL = 'https://fs952vsnm3.execute-api.us-east-1.amazonaws.com/dev/';
 
 const api = axios.create({
-  baseURL: 'https://e4a3o1pyzd.execute-api.us-east-1.amazonaws.com/dev/',
-  rejectUnauthorized: false
+  baseURL: 'https://fs952vsnm3.execute-api.us-east-1.amazonaws.com/dev/',
+  rejectUnauthorized: false,
 });
 
 // export const baseURL = 'http://localhost:3333/';
