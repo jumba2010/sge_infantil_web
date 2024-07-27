@@ -10,7 +10,7 @@ import { StateType } from './model';
 import LoginComponents from './components/Login';
 import styles from './style.less';
 import API from './../../../services/api';
-import {useDispatch} from  'react-redux';
+import { useDispatch } from 'react-redux';
 import { login, USER_KEY, SUCURSAL } from './../../../services/auth';
 
 const { UserName, Password, Submit } = LoginComponents;
@@ -73,8 +73,6 @@ class Login extends Component<LoginProps, LoginState> {
     sucursals: [],
   };
 
- 
-  
   changeAutoLogin = (e: CheckboxChangeEvent) => {
     this.setState({
       autoLogin: e.target.checked,
@@ -85,9 +83,9 @@ class Login extends Component<LoginProps, LoginState> {
     if (this.state.sucursal) {
       let sucursal = this.state.sucursals.filter(s => s.code === this.state.sucursal)[0];
       localStorage.setItem(SUCURSAL, JSON.stringify(sucursal));
-     
+
       const dispatch = this.props.dispatch;
-      console.log(sucursal)
+      console.log(sucursal);
       if (dispatch) {
         dispatch({
           type: 'student/fetchFrequencies',
@@ -96,12 +94,11 @@ class Login extends Component<LoginProps, LoginState> {
         dispatch({
           type: 'student/fetchActiveStudents',
         });
-        console.log('Student called')
+        console.log('Student called');
 
         dispatch({
           type: 'payment/fetchUnpaidPayments',
         });
-  
       }
 
       //let response = await API.get('/api/frequency/' + sucursal.id);
@@ -139,13 +136,12 @@ class Login extends Component<LoginProps, LoginState> {
         });
       } else {
         localStorage.setItem(SUCURSAL, JSON.stringify(user.sucursals[0]));
-        
+
         const dispatch = this.props.dispatch;
         dispatch({
           type: 'student/fetchFrequencies',
         });
-        
-        
+
         // let response = await API.get('/api/frequency/' + user.sucursals[0].id);
         // localStorage.setItem('FREQUENCIES', JSON.stringify(response.data));
         this.props.history.push('/dashboard/analysis');
@@ -153,13 +149,13 @@ class Login extends Component<LoginProps, LoginState> {
     }
   };
 
-  handleSelectSucursals(sucursal:any) {
+  handleSelectSucursals(sucursal: any) {
     this.setState({ sucursal });
   }
 
   handleValidate = (e: any) => {
     e.preventDefault();
-    this.props.form.validateFieldsAndScroll((err: any, values:any) => {
+    this.props.form.validateFieldsAndScroll((err: any, values: any) => {
       if (!err) {
         console.log('Values:', values);
       }
@@ -177,7 +173,7 @@ class Login extends Component<LoginProps, LoginState> {
       const { ipaddress, location } = this.state;
       let userAgent = window.navigator.userAgent;
       const logins = await API.get('/api/logininfo/' + userDetails.data.id);
-      
+
       //Registando a informação de login
       await API.post('/api/logininfo', {
         ipaddress,
@@ -193,7 +189,7 @@ class Login extends Component<LoginProps, LoginState> {
         setAuthority(['admin']);
       }
 
-      if (logins.data.length == 0) {
+      if (!userDetails.data.passwordUpdated) {
         //Must Change Password because is the first login
         this.setState({ changePassword: true, isLogged: true });
       } else if (userDetails.data.sucursals.length > 1) {
@@ -214,10 +210,10 @@ class Login extends Component<LoginProps, LoginState> {
         this.props.history.push('/dashboard/analysis');
       }
     } catch (err) {
-      console.log(err)
+      console.log(err);
       notification.error({
         description: err.message,
-        message: 'Erro de Requisição',
+        message: 'Username ou password invalidos',
       });
       this.setState({
         submitting: false,

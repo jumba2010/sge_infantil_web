@@ -1,5 +1,5 @@
 import axios from 'axios';
-// import { getToken } from './auth';
+import { getToken } from './auth';
 
 export const baseURL = 'https://fs952vsnm3.execute-api.us-east-1.amazonaws.com/dev/';
 

@@ -7,7 +7,6 @@ import {
 
 const StudentModel = {
   namespace: 'student',
-
   state: {
     students: [],
     frequencies: [],
