@@ -38,35 +38,34 @@ import styles from './index.less';
 
 const steps = [
   {
-    title: formatMessage({id:'student.personal.details'}),
-    content: <div>ss</div>,
+    title: formatMessage({ id: 'student.personal.details' }),
+    content: '1',
   },
   {
-    title: formatMessage({id:'global.parents'}),
+    title: formatMessage({ id: 'student.parent.details' }),
     content: '2',
   },
   {
-    title: formatMessage({id:'student.sponsor'}),
-    content: '2',
-  },
-  {
-    title: formatMessage({id:'student.registration.details'}),
-    content: '2',
-  },
-  {
-    title: formatMessage({id:'global.confirm'}),
+    title: formatMessage({ id: 'studet.sponsor.details' }),
     content: '3',
   },
   {
-    title: formatMessage({id:'global.success'}),
+    title: formatMessage({ id: 'student.registration.details' }),
+    content: '3',
+  },
+  {
+    title: formatMessage({ id: 'global.confirm' }),
     content: '4',
+  },
+  {
+    title: formatMessage({ id: 'global.success' }),
+    content: '5',
   },
 ];
 
 function desabledBirthDate(current) {
   return current && current > moment().endOf('day');
 }
-
 
 function getBase64(img, callback) {
   const reader = new FileReader();
@@ -218,10 +217,8 @@ class Student extends React.Component {
   }
 
   changeNeedSpecialHour(e) {
-    const {frequencies} = this.props.frequencies;
-    let freq = frequencies.filter(
-      f => f.level === this.state.frequency,
-    )[0];
+    const { frequencies } = this.props.frequencies;
+    let freq = frequencies.filter(f => f.level === this.state.frequency)[0];
     let paymentValue = freq.monthlyPayment;
     let extra = e.target.checked ? freq.specialHourMonthlyValue : 0;
     let monthlyPayment = paymentValue + extra;
@@ -241,10 +238,8 @@ class Student extends React.Component {
   }
 
   handleSelectClass(frequency) {
-    const {frequencies} = this.props;
-    let freq = frequencies.filter(
-      f => f.level === frequency,
-    )[0];
+    const { frequencies } = this.props;
+    let freq = frequencies.filter(f => f.level === frequency)[0];
     let registrationValue = this.state.isNew
       ? freq.registrationValue
       : freq.recurigRegistrationValue;
@@ -333,19 +328,17 @@ class Student extends React.Component {
     this.setState({ current });
   }
 
-
-handleApiCallback (resp)  {
+  handleApiCallback(resp) {
     let registrationId = resp.data.id;
 
     const current = this.state.current + 1;
     this.setState({ current, issaving: false });
     localStorage.removeItem('LAST_STUDENT');
     window.scrollTo(0, 0);
-
   }
 
- async  handleStudentCreationCallBack(res) {
-    let createdStudent =res.data;
+  async handleStudentCreationCallBack(res) {
+    let createdStudent = res.data;
     let loggedUser = JSON.parse(localStorage.getItem(USER_KEY));
     let sucursal = JSON.parse(localStorage.getItem(SUCURSAL));
     let {
@@ -354,31 +347,31 @@ handleApiCallback (resp)  {
       registrationValue,
       discount,
       frequency,
-      needSpecialHour
+      needSpecialHour,
     } = this.state;
 
-    let  re =  await api
-    .post('/api/registration', {
-      monthlyPayment,
-      totalPaid: registrationValue,
-      discount,
-      studentId: createdStudent.id,
-      student:createdStudent,
-      isNew,
-      year: new Date().getFullYear(),
-      sucursal: sucursal,
-      classId: frequency,
-      createdBy: loggedUser.id,
-      activatedBy: loggedUser.id,
-    })
-    .then(this.handleApiCallback)
-    .catch(function(error) {
-      console.log(error)
-      notification.error({
-        description: 'Erro ao Processar o o seu pedido',
-        message: 'Erro ao processar o pedido',
+    let re = await api
+      .post('/api/registration', {
+        monthlyPayment,
+        totalPaid: registrationValue,
+        discount,
+        studentId: createdStudent.id,
+        student: createdStudent,
+        isNew,
+        year: new Date().getFullYear(),
+        sucursal: sucursal,
+        classId: frequency,
+        createdBy: loggedUser.id,
+        activatedBy: loggedUser.id,
+      })
+      .then(this.handleApiCallback)
+      .catch(function(error) {
+        console.log(error);
+        notification.error({
+          description: 'Erro ao Processar o o seu pedido',
+          message: 'Erro ao processar o pedido',
+        });
       });
-    });
   }
 
   confirmTransaction = async () => {
@@ -414,14 +407,14 @@ handleApiCallback (resp)  {
       alergicToMedicine,
     } = this.state;
 
-  let carier =  {
+    let carier = {
       name: carierName,
       kinshipDegree,
       contact: carierContact,
       workPlace: workplace,
       createdBy: loggedUser.id,
       activatedBy: loggedUser.id,
-    }
+    };
 
     let s = await api
       .post('/api/student', {
@@ -447,9 +440,10 @@ handleApiCallback (resp)  {
         sucursalId: sucursal.id,
         createdBy: loggedUser.id,
         activatedBy: loggedUser.id,
-      }).then(this.handleStudentCreationCallBack)
+      })
+      .then(this.handleStudentCreationCallBack)
       .catch(function(error) {
-        console.log('User',error)
+        console.log('User', error);
         notification.error({
           description: 'Erro ao Processar o seu pedido',
           message: 'Erro ao processar o pedido',
@@ -471,7 +465,7 @@ handleApiCallback (resp)  {
       localStorage.setItem('LAST_STUDENT', JSON.stringify(s));
 
       const current = this.state.current + 1;
-      this.setState({ current });
+      this.setState({ current, address: this.state.studentAddress });
     }
   }
 
@@ -617,7 +611,7 @@ handleApiCallback (resp)  {
 
   render() {
     const { current } = this.state;
-    const {frequencies} = this.props;
+    const { frequencies } = this.props;
     const { getFieldDecorator } = this.props.form;
     const uploadButton = (
       <div>
@@ -651,9 +645,9 @@ handleApiCallback (resp)  {
       initialValue: 'BI',
     })(
       <Select style={{ width: 200 }}>
-        <Option value="BI">{formatMessage({id:'document.type.id'})}</Option>
-        <Option value="cedula">{formatMessage({id:'document.type.personal.id.card'})}</Option>
-        <Option value="Nenhum">{formatMessage({id:'document.type.personal.nodoc'})}</Option>
+        <Option value="BI">{formatMessage({ id: 'document.type.id' })}</Option>
+        <Option value="cedula">{formatMessage({ id: 'document.type.personal.id.card' })}</Option>
+        <Option value="Nenhum">{formatMessage({ id: 'document.type.personal.nodoc' })}</Option>
       </Select>,
     );
 
@@ -663,7 +657,7 @@ handleApiCallback (resp)  {
           {formatMessage({ id: 'student.add' })}
         </Button>
         <Button onClick={() => this.props.history.push('/student/mantain')}>
-        {formatMessage({ id: 'list.student' })}
+          {formatMessage({ id: 'list.student' })}
         </Button>
       </>
     );
@@ -677,7 +671,9 @@ handleApiCallback (resp)  {
                 key={item.title}
                 title={item.title}
                 icon={
-                  item.title === (formatMessage({id:'global.confirm'})) && current == 4 && this.state.issaving ? (
+                  item.title === formatMessage({ id: 'global.confirm' }) &&
+                  current == 4 &&
+                  this.state.issaving ? (
                     <Icon type="loading" />
                   ) : null
                 }
@@ -696,7 +692,7 @@ handleApiCallback (resp)  {
                 {localStorage.getItem('LAST_STUDENT') != null ? (
                   <Alert
                     style={{ margin: '30px 10px' }}
-                    description={formatMessage({id:'unsaved.student.warning'})}
+                    description={formatMessage({ id: 'unsaved.student.warning' })}
                     type="warning"
                   ></Alert>
                 ) : null}
@@ -771,7 +767,6 @@ handleApiCallback (resp)  {
                           optionFilterProp="children"
                           onChange={this.handleSelectGender}
                           value={this.state.gender}
-                          
                           filterOption={(input, option) =>
                             option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                           }
@@ -800,16 +795,27 @@ handleApiCallback (resp)  {
                             option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                           }
                         >
-                          <Option value="BI">{formatMessage({id:'document.type.id'})}</Option>
-                          <Option value="Passaporte">{formatMessage({id:'document.type.personal.passport'})}</Option>
-                          <Option value="Cedula">{formatMessage({id:'document.type.personal.id.card'})}</Option>
-                          <Option value="Bolentim">{formatMessage({id:'document.type.birth.bollentin'})}</Option>
-                          <Option value="Nenhum">{formatMessage({id:'document.type.personal.nodoc'})}</Option>
+                          <Option value="BI">{formatMessage({ id: 'document.type.id' })}</Option>
+                          <Option value="Passaporte">
+                            {formatMessage({ id: 'document.type.passport' })}
+                          </Option>
+                          <Option value="Cedula">
+                            {formatMessage({ id: 'document.type.personal.id.card' })}
+                          </Option>
+                          <Option value="Bolentim">
+                            {formatMessage({ id: 'document.type.birth.bollentin' })}
+                          </Option>
+                          <Option value="Nenhum">
+                            {formatMessage({ id: 'document.type.nodoc' })}
+                          </Option>
                         </Select>,
                       )}
                     </Form.Item>
 
-                    <Form.Item label={formatMessage({ id: 'student.document.number' })} required="false">
+                    <Form.Item
+                      label={formatMessage({ id: 'student.document.number' })}
+                      required="false"
+                    >
                       {getFieldDecorator('docNumber', {
                         initialValue: `${this.state.docNumber}`,
                         rules: [
@@ -863,7 +869,7 @@ handleApiCallback (resp)  {
                             checked={this.state.isAlergicToFood}
                             onChange={this.changeIsAlergicToFood.bind(this)}
                           >
-                             {formatMessage({ id: 'student.alergic.tofood' })}
+                            {formatMessage({ id: 'student.alergic.tofood' })}
                           </Checkbox>
                         </Col>
                         <Col span={8}>
@@ -878,7 +884,9 @@ handleApiCallback (resp)  {
                       </Row>
 
                       {this.state.isAlergicToFood ? (
-                        <Form.Item label={<span>{formatMessage({ id: 'student.food.list' })}</span>}>
+                        <Form.Item
+                          label={<span>{formatMessage({ id: 'student.food.list' })}</span>}
+                        >
                           {getFieldDecorator('alergicToFood', {
                             initialValue: `${this.state.alergicToFood}`,
                             rules: [
@@ -899,7 +907,9 @@ handleApiCallback (resp)  {
                       ) : null}
 
                       {this.state.isAlergicToMedicine ? (
-                        <Form.Item label={<span>{formatMessage({ id: 'student.medicine.list' })}</span>}>
+                        <Form.Item
+                          label={<span>{formatMessage({ id: 'student.medicine.list' })}</span>}
+                        >
                           {getFieldDecorator('alergicToMedicine', {
                             initialValue: `${this.state.alergicToMedicine}`,
                             rules: [
@@ -1016,10 +1026,10 @@ handleApiCallback (resp)  {
                 </Form.Item>
                 <Form.Item>
                   <Button type="danger" style={{ marginLeft: 180 }} onClick={() => this.restart()}>
-                  {formatMessage({ id: 'global.cancel' })}
+                    {formatMessage({ id: 'global.cancel' })}
                   </Button>
                   <Button style={{ marginLeft: 8 }} onClick={() => this.prev()}>
-                  {formatMessage({ id: 'global.previous' })}
+                    {formatMessage({ id: 'global.previous' })}
                   </Button>
 
                   <Button
@@ -1059,7 +1069,7 @@ handleApiCallback (resp)  {
                   )}
                 </Form.Item>
 
-                <Form.Item label={<span>{formatMessage({ id:'student.sponsor.workplace'})}</span>}>
+                <Form.Item label={<span>{formatMessage({ id: 'student.sponsor.name' })}</span>}>
                   {getFieldDecorator('carierName', {
                     initialValue: `${this.state.carierName}`,
                     rules: [
@@ -1079,7 +1089,9 @@ handleApiCallback (resp)  {
                   )}
                 </Form.Item>
 
-                <Form.Item label={<span>{formatMessage({ id:'student.sponsor.workplace'})}</span>}>
+                <Form.Item
+                  label={<span>{formatMessage({ id: 'student.sponsor.workplace' })}</span>}
+                >
                   <Input
                     value={this.state.jobLocation}
                     name="jobLocation"
@@ -1087,7 +1099,7 @@ handleApiCallback (resp)  {
                   />
                 </Form.Item>
 
-                <Form.Item label={<span>{formatMessage({ id:'student.sponsor.contact'})}</span>}>
+                <Form.Item label={<span>{formatMessage({ id: 'student.sponsor.contact' })}</span>}>
                   <Row gutter={8}>
                     <Col span={3}>
                       <Input defaultValue="+258" disabled="true" />
@@ -1113,7 +1125,7 @@ handleApiCallback (resp)  {
                     </Col>
                   </Row>
                 </Form.Item>
-                <Form.Item label={<span>{formatMessage({ id:'student.sponsor.address'})}</span>}>
+                <Form.Item label={<span>{formatMessage({ id: 'student.sponsor.address' })}</span>}>
                   {getFieldDecorator('address', {
                     initialValue: `${this.state.address}`,
                     rules: [
@@ -1127,10 +1139,10 @@ handleApiCallback (resp)  {
                 </Form.Item>
                 <Form.Item>
                   <Button type="danger" style={{ marginLeft: 180 }} onClick={() => this.restart()}>
-                  {formatMessage({ id:'global.cancel'})}
+                    {formatMessage({ id: 'global.cancel' })}
                   </Button>
                   <Button style={{ marginLeft: 8 }} onClick={() => this.prev()}>
-                  {formatMessage({ id:'global.previous'})}
+                    {formatMessage({ id: 'global.previous' })}
                   </Button>
 
                   <Button
@@ -1139,7 +1151,7 @@ handleApiCallback (resp)  {
                     htmlType="submit"
                     onClick={() => this.next3()}
                   >
-                    {formatMessage({ id:'global.next'})}
+                    {formatMessage({ id: 'global.next' })}
                   </Button>
                 </Form.Item>
               </Form>
@@ -1147,7 +1159,7 @@ handleApiCallback (resp)  {
 
             {current == 3 ? (
               <Form {...formItemLayout} style={{ padding: '50px 0' }}>
-                <Form.Item label={formatMessage({ id:'student.registration.level'})}>
+                <Form.Item label={formatMessage({ id: 'student.registration.level' })}>
                   {getFieldDecorator('frequency', {
                     initialValue: `${this.state.frequency}`,
                     rules: [{ required: true, message: 'Por favor informe o Nível!' }],
@@ -1167,7 +1179,7 @@ handleApiCallback (resp)  {
                     </Select>,
                   )}
                 </Form.Item>
-                <Form.Item label={formatMessage({ id:'student.registration.discount'})}>
+                <Form.Item label={formatMessage({ id: 'student.registration.discount' })}>
                   <Select
                     showSearch
                     placeholder="Seleccione o desconto.."
@@ -1188,7 +1200,7 @@ handleApiCallback (resp)  {
                     <Option value="0.35">35%</Option>
                   </Select>
                 </Form.Item>
-                <Form.Item label={formatMessage({ id:'student.registration.payment.method'})}>
+                <Form.Item label={formatMessage({ id: 'student.registration.payment.method' })}>
                   {getFieldDecorator('paymentMethod', {
                     initialValue: `${this.state.paymentMethod}`,
                     rules: [
@@ -1204,11 +1216,17 @@ handleApiCallback (resp)  {
                         option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }
                     >
-                      <Option value="NUMERARIO">{formatMessage({ id:'payment.method.cash'})}</Option>
-                      <Option value="POS">{formatMessage({ id:'payment.method.pos'})}</Option>
-                      <Option value="TRANSFERENCIA">{formatMessage({ id:'payment.method.bank.transfer'})}</Option>
-                      <Option value="DEPOSITO">{formatMessage({ id:'payment.method.bank.deposit'})}</Option>
-                      <Option value="MPEZA">{formatMessage({ id:'payment.method.mpesa'})}</Option>
+                      <Option value="NUMERARIO">
+                        {formatMessage({ id: 'payment.method.cash' })}
+                      </Option>
+                      <Option value="POS">{formatMessage({ id: 'payment.method.pos' })}</Option>
+                      <Option value="TRANSFERENCIA">
+                        {formatMessage({ id: 'payment.method.bank.transfer' })}
+                      </Option>
+                      <Option value="DEPOSITO">
+                        {formatMessage({ id: 'payment.method.bank.deposit' })}
+                      </Option>
+                      <Option value="MPEZA">{formatMessage({ id: 'payment.method.mpesa' })}</Option>
                     </Select>,
                   )}
                 </Form.Item>
@@ -1216,19 +1234,23 @@ handleApiCallback (resp)  {
                 <Form.Item>
                   <div className={styles.information} style={{ marginLeft: 180 }}>
                     <Descriptions column={1}>
-                      <Descriptions.Item label={formatMessage({ id:'student.registration.amount'})}>
+                      <Descriptions.Item
+                        label={formatMessage({ id: 'student.registration.amount' })}
+                      >
                         <Statistic value={this.state.registrationValue} suffix="MZN" />
                       </Descriptions.Item>
-                      <Descriptions.Item label={formatMessage({ id:'student.registration.monthly.payment'})}>
+                      <Descriptions.Item
+                        label={formatMessage({ id: 'student.registration.monthly.payment' })}
+                      >
                         <Statistic value={this.state.monthlyPayment} suffix="MZN" />
                       </Descriptions.Item>
                     </Descriptions>
                   </div>
                   <Button type="danger" style={{ marginLeft: 180 }} onClick={() => this.restart()}>
-                  {formatMessage({ id:'global.cancel'})}
+                    {formatMessage({ id: 'global.cancel' })}
                   </Button>
                   <Button style={{ marginLeft: 8 }} onClick={() => this.prev()}>
-                  {formatMessage({ id:'global.previous'})}
+                    {formatMessage({ id: 'global.previous' })}
                   </Button>
 
                   <Button
@@ -1237,7 +1259,7 @@ handleApiCallback (resp)  {
                     htmlType="submit"
                     onClick={() => this.next4()}
                   >
-                    {formatMessage({ id:'global.next'})}
+                    {formatMessage({ id: 'global.next' })}
                   </Button>
                 </Form.Item>
               </Form>
@@ -1246,88 +1268,100 @@ handleApiCallback (resp)  {
             {current == 4 ? (
               <Form {...formItemLayout} style={{ padding: '50px 0' }}>
                 <Alert
-                  message={formatMessage({id:'global.confirm.message'})}
+                  message={formatMessage({ id: 'global.confirm.message' })}
                   type="info"
                   showIcon
                 />
 
                 <Descriptions
-                  title={formatMessage({id:'student.personal.details'})}
+                  title={formatMessage({ id: 'student.personal.details' })}
                   style={{ marginBottom: 10, marginTop: 32 }}
                   column={4}
                   className={styles.information}
                 >
-                  <Descriptions.Item label={formatMessage({id:'student.name'})}>{this.state.name}</Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'student.birthdate'})}>
+                  <Descriptions.Item label={formatMessage({ id: 'student.name' })}>
+                    {this.state.name}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({ id: 'student.birthdate' })}>
                     {this.state.birthDate.format('DD/MM/YYYY')}
                   </Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'student.sex'})}>{this.state.gender}</Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'student.document.type'})}>
+                  <Descriptions.Item label={formatMessage({ id: 'student.sex' })}>
+                    {this.state.gender}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({ id: 'student.document.type' })}>
                     {this.state.docType}
                   </Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'student.document.number'})}>
+                  <Descriptions.Item label={formatMessage({ id: 'student.document.number' })}>
                     {this.state.docNumber}
                   </Descriptions.Item>
                 </Descriptions>
                 <Divider style={{ marginBottom: 10 }} column={4} />
                 <Descriptions
-                  title={formatMessage({id:'student.parents'})}
+                  title={formatMessage({ id: 'student.parents' })}
                   style={{ marginBottom: 10 }}
                   className={styles.information}
                 >
-                  <Descriptions.Item label={formatMessage({id:'student.father.name'})}>{this.state.fatherName}</Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'student.father.contact'})}>
+                  <Descriptions.Item label={formatMessage({ id: 'student.father.name' })}>
+                    {this.state.fatherName}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({ id: 'student.father.contact' })}>
                     {this.state.fatherContact}
                   </Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'student.mother.name'})}>{this.state.motherName}</Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'student.mother.contact'})}>
+                  <Descriptions.Item label={formatMessage({ id: 'student.mother.name' })}>
+                    {this.state.motherName}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({ id: 'student.mother.contact' })}>
                     {this.state.motherContact}
                   </Descriptions.Item>
                 </Descriptions>
                 <Divider style={{ marginBottom: 10 }} />
                 <Descriptions
-                  title={formatMessage({id:'student.sponsor'})}
+                  title={formatMessage({ id: 'student.sponsor' })}
                   style={{ marginBottom: 10 }}
                   column={4}
                   className={styles.information}
                 >
-                  <Descriptions.Item label={formatMessage({id:'student.kuinship.degree'})}>
+                  <Descriptions.Item label={formatMessage({ id: 'student.kuinship.degree' })}>
                     {this.state.kinshipDegree}
                   </Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'student.sponsor.name'})}>{this.state.carierName}</Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'student.sponsor.contact'})}>{this.state.carierContact}</Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'student.sponsor.workplace'})}>
+                  <Descriptions.Item label={formatMessage({ id: 'student.sponsor.name' })}>
+                    {this.state.carierName}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({ id: 'student.sponsor.contact' })}>
+                    {this.state.carierContact}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({ id: 'student.sponsor.workplace' })}>
                     {this.state.jobLocation}
                   </Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'student.sponsor.address'})}>{this.state.address}</Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({ id: 'student.sponsor.address' })}>
+                    {this.state.address}
+                  </Descriptions.Item>
                 </Descriptions>
                 <Divider style={{ marginBottom: 10 }} />
                 <Descriptions
-                  title={formatMessage({id:'student.registration.details'})}
+                  title={formatMessage({ id: 'student.registration.details' })}
                   style={{ marginBottom: 10 }}
                   column={4}
                   className={styles.information}
                 >
-                  <Descriptions.Item label={formatMessage({id:'student.registration.level'})}>
-                    {
-                      frequencies.filter(
-                        f => f.level == this.state.frequency,
-                      )[0].description
-                    }
+                  <Descriptions.Item label={formatMessage({ id: 'student.registration.level' })}>
+                    {frequencies.filter(f => f.level == this.state.frequency)[0].description}
                   </Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'student.registration.monthly.payment'})}>
+                  <Descriptions.Item
+                    label={formatMessage({ id: 'student.registration.monthly.payment' })}
+                  >
                     {this.state.monthlyPayment}
                   </Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'student.registration.amount'})}>
+                  <Descriptions.Item label={formatMessage({ id: 'student.registration.amount' })}>
                     {this.state.registrationValue}
                   </Descriptions.Item>
-                  <Descriptions.Item label={formatMessage({id:'student.registration.amount'})}>
+                  <Descriptions.Item label={formatMessage({ id: 'student.registration.amount' })}>
                     {this.state.paymentMethod}
                   </Descriptions.Item>
                 </Descriptions>
                 <Form.Item>
                   <Button style={{ marginLeft: 180 }} onClick={() => this.prev()}>
-                    {formatMessage({id:'global.previous'})}
+                    {formatMessage({ id: 'global.previous' })}
                   </Button>
 
                   <Button
@@ -1337,7 +1371,7 @@ handleApiCallback (resp)  {
                     htmlType="submit"
                     onClick={() => this.confirmTransaction()}
                   >
-                    {formatMessage({id:'global.confirm'})}
+                    {formatMessage({ id: 'global.confirm' })}
                   </Button>
                 </Form.Item>
               </Form>
@@ -1346,8 +1380,8 @@ handleApiCallback (resp)  {
               <Form {...formItemLayout} style={{ padding: '50px 0' }}>
                 <Result
                   status="success"
-                  title={formatMessage({id:'global.success.message'})}
-                  subTitle={formatMessage({id:'global.gegistration.success'})}
+                  title={formatMessage({ id: 'global.success.message' })}
+                  subTitle={formatMessage({ id: 'global.gegistration.success' })}
                   extra={extra}
                 />
                 <Form.Item></Form.Item>
