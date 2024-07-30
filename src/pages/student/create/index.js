@@ -36,29 +36,56 @@ import { formatMessage } from 'umi-plugin-react/locale';
 
 import styles from './index.less';
 
+// const steps = [
+//   {
+//     title: formatMessage({ id: 'student.personal.details' }),
+//     content: '1',
+//   },
+//   {
+//     title: formatMessage({ id: 'student.parent.details' }),
+//     content: '2',
+//   },
+//   {
+//     title: formatMessage({ id: 'studet.sponsor.details' }),
+//     content: '3',
+//   },
+//   {
+//     title: formatMessage({ id: 'student.registration.details' }),
+//     content: '3',
+//   },
+//   {
+//     title: formatMessage({ id: 'global.confirm' }),
+//     content: '4',
+//   },
+//   {
+//     title: formatMessage({ id: 'global.success' }),
+//     content: '5',
+//   },
+// ];
+
 const steps = [
   {
-    title: formatMessage({ id: 'student.personal.details' }),
+    title: 'Dados Pessoais',
     content: '1',
   },
   {
-    title: formatMessage({ id: 'student.parent.details' }),
+    title: 'Filiação',
     content: '2',
   },
   {
-    title: formatMessage({ id: 'studet.sponsor.details' }),
+    title: 'Encarregado',
     content: '3',
   },
   {
-    title: formatMessage({ id: 'student.registration.details' }),
+    title: 'Dados de Inscrição',
     content: '3',
   },
   {
-    title: formatMessage({ id: 'global.confirm' }),
+    title: 'Confirmaçãao',
     content: '4',
   },
   {
-    title: formatMessage({ id: 'global.success' }),
+    title: 'Sucesso',
     content: '5',
   },
 ];
@@ -1274,7 +1301,7 @@ class Student extends React.Component {
                 />
 
                 <Descriptions
-                  title={formatMessage({ id: 'student.personal.details' })}
+                  title="Dados Pessoais"
                   style={{ marginBottom: 10, marginTop: 32 }}
                   column={4}
                   className={styles.information}
