@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'dva';
 
@@ -87,6 +87,7 @@ class ListStudent extends React.Component {
 
    frequencies = this.props.frequencies
    students = this.props.students
+
 
   handleFormReset = () => {
     const { form, dispatch } = this.props;

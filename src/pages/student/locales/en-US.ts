@@ -34,6 +34,7 @@ export default {
   'student.registration.discount': 'Discount:',
   'student.registration.payment.method': 'Payment Methods:',
   'student.registration.monthly.payment': 'Monthly Payment Amount:',
+  'student.registration.total.payment': 'Total to Pay:',
   'student.registration.amount': 'Registration Amount:',
   'global.name': 'Name:',
   'student.list': 'List of Students',

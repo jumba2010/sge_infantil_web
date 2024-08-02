@@ -315,7 +315,7 @@ class ListStudent extends React.Component {
         key: 'operation',
         render: (text, redord) => (
           <span>
-            <a href={`${baseURL}/listallpayments/${redord.key}`}>Ver Todos Pagamentos </a>
+            <a href='#'>Ver Todos Pagamentos </a>
           </span>
         ),
       },

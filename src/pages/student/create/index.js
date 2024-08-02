@@ -274,6 +274,7 @@ class Student extends React.Component {
       frequency,
       registrationValue,
       monthlyPayment: freq.monthlyPayment,
+      total:parseFloat(registrationValue)+parseFloat(freq.monthlyPayment),
       oldMonthlyValue: freq.monthlyPayment,
       recurigRegistrationValue: freq.recurigRegistrationValue,
     });
@@ -357,11 +358,16 @@ class Student extends React.Component {
 
   handleApiCallback(resp) {
     let registrationId = resp.data.id;
-
+    const {dispatch } = this.props;
     const current = this.state.current + 1;
     this.setState({ current, issaving: false });
     localStorage.removeItem('LAST_STUDENT');
     window.scrollTo(0, 0);
+
+    dispatch({
+      type: 'student/fetchActiveStudents',
+    });
+
   }
 
   async handleStudentCreationCallBack(res) {
@@ -470,7 +476,6 @@ class Student extends React.Component {
       })
       .then(this.handleStudentCreationCallBack)
       .catch(function(error) {
-        console.log('User', error);
         notification.error({
           description: 'Erro ao Processar o seu pedido',
           message: 'Erro ao processar o pedido',
@@ -1259,7 +1264,8 @@ class Student extends React.Component {
                 </Form.Item>
 
                 <Form.Item>
-                  <div className={styles.information} style={{ marginLeft: 180 }}>
+                  
+                  <div className={styles.information} style={{marginLeft:200 }}>
                     <Descriptions column={1}>
                       <Descriptions.Item
                         label={formatMessage({ id: 'student.registration.amount' })}
@@ -1270,6 +1276,12 @@ class Student extends React.Component {
                         label={formatMessage({ id: 'student.registration.monthly.payment' })}
                       >
                         <Statistic value={this.state.monthlyPayment} suffix="MZN" />
+                      </Descriptions.Item>
+
+                      <Descriptions.Item
+                        label={formatMessage({ id: 'student.registration.total.payment' })}
+                      >
+                        <Statistic value={this.state.total} suffix="MZN" />
                       </Descriptions.Item>
                     </Descriptions>
                   </div>
