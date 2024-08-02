@@ -274,7 +274,7 @@ class Student extends React.Component {
       frequency,
       registrationValue,
       monthlyPayment: freq.monthlyPayment,
-      total:parseFloat(registrationValue)+parseFloat(freq.monthlyPayment),
+      total: parseFloat(registrationValue) + parseFloat(freq.monthlyPayment),
       oldMonthlyValue: freq.monthlyPayment,
       recurigRegistrationValue: freq.recurigRegistrationValue,
     });
@@ -358,7 +358,7 @@ class Student extends React.Component {
 
   handleApiCallback(resp) {
     let registrationId = resp.data.id;
-    const {dispatch } = this.props;
+    const { dispatch } = this.props;
     const current = this.state.current + 1;
     this.setState({ current, issaving: false });
     localStorage.removeItem('LAST_STUDENT');
@@ -367,7 +367,6 @@ class Student extends React.Component {
     dispatch({
       type: 'student/fetchActiveStudents',
     });
-
   }
 
   async handleStudentCreationCallBack(res) {
@@ -1264,8 +1263,7 @@ class Student extends React.Component {
                 </Form.Item>
 
                 <Form.Item>
-                  
-                  <div className={styles.information} style={{marginLeft:200 }}>
+                  <div className={styles.information} style={{ marginLeft: 200 }}>
                     <Descriptions column={1}>
                       <Descriptions.Item
                         label={formatMessage({ id: 'student.registration.amount' })}

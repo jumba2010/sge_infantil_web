@@ -54,7 +54,6 @@ class ListStudent extends React.Component {
       loading: true,
     };
 
-
     this.handleChangeInput = this.handleChangeInput.bind(this);
     this.handleSelectClass = this.handleSelectClass.bind(this);
   }
@@ -78,9 +77,7 @@ class ListStudent extends React.Component {
     }
   }
   handleSelectClass(frequency) {
-    let freq = this.props.frequencies.filter(
-      frq => frq.level === frequency,
-    )[0];
+    let freq = this.props.frequencies.filter(frq => frq.level === frequency)[0];
 
     let s = this.state.lastdata.filter(d => d.frequency === freq.description);
     this.setState({ data: s, lastdata: s });
@@ -90,7 +87,7 @@ class ListStudent extends React.Component {
     let m = months.filter(m => m.desc == payment.month)[0];
     let month = months.indexOf(m) + 1;
     let studentId = payment.studentId;
-  
+
     let student = this.state.students.filter(s => s.studentId == studentId)[0];
     let payments = student.payments;
 
@@ -275,16 +272,14 @@ class ListStudent extends React.Component {
     this.searchFields();
   }
 
-
   searchFields() {
-
-    findActiveStudents().then( response => {
+    findActiveStudents().then(response => {
       let students = response.data;
       const pagination = { ...this.state.pagination };
       pagination.total = students.length;
       const data = students.map(student => {
         const freq = this.props.frequencies.find(f => f.level === student.student.level);
-  
+
         return {
           key: student.student.id,
           name: student.student.name,
@@ -293,15 +288,12 @@ class ListStudent extends React.Component {
           frequency: freq ? freq.description : '', // Check if freq exists
           createdAt: moment(student.student.createdAt).format('YYYY-MM-DD'),
           payments: student.payments,
-          studentId: student.student.id
+          studentId: student.student.id,
         };
       });
-  
+
       this.setState({ data, students: data, lastdata: data, loading: false, pagination });
-
-    })
-
- 
+    });
   }
 
   render() {
@@ -315,15 +307,14 @@ class ListStudent extends React.Component {
         key: 'operation',
         render: (text, redord) => (
           <span>
-            <a href='#'>Ver Todos Pagamentos </a>
+            <a href="#">Ver Todos Pagamentos </a>
           </span>
         ),
       },
     ];
 
     const expandedPaymentRowRender = record => {
-
-      console.log('Payment Record',record)
+      console.log('Payment Record', record);
       const columns = [
         { title: 'Ano', dataIndex: 'year', key: 'year' },
         { title: 'Mês', dataIndex: 'month', key: 'month' },
@@ -333,12 +324,12 @@ class ListStudent extends React.Component {
           key: 'status',
           render: (text, record) => (
             <span>
-              {record.status + "" == "1" ? (
+              {record.status + '' == '1' ? (
                 <Badge count={'Pago'} style={{ backgroundColor: '#52c41a' }} />
               ) : record.hasFine ? (
                 <Badge count={'Pago'} style={{ backgroundColor: '#DAA520' }} />
               ) : (
-                <Badge count={'Não Pago'}  />
+                <Badge count={'Não Pago'} />
               )}
             </span>
           ),
@@ -375,7 +366,7 @@ class ListStudent extends React.Component {
           year: record.payments[index].year,
           month: month,
           discount: record.payments[index].discount,
-          fine: record.payments[index].fine?record.payments[index].fine:0,
+          fine: record.payments[index].fine ? record.payments[index].fine : 0,
           currentMonthlyPayment: record.currentMonthlyPayment,
           paymentDate: record.payments[index].paymentDate,
           hasFine: record.payments[index].hasFine,
@@ -384,7 +375,6 @@ class ListStudent extends React.Component {
           limit: record.payments[index].limitDate,
           studentId: record.studentId,
         });
-     
       }
 
       return (
@@ -409,7 +399,7 @@ class ListStudent extends React.Component {
               <Descriptions.Item label="Estado">
                 {' '}
                 <span>
-                  {record.status + "" == "0" ? (
+                  {record.status + '' == '0' ? (
                     <Badge count={'Não Pago'} />
                   ) : (
                     <Badge count={'Pago'} style={{ backgroundColor: '#52c41a' }} />
@@ -426,20 +416,20 @@ class ListStudent extends React.Component {
     };
 
     return (
-        <Card bordered={false}>
-          <div className={styles.tableList}>
-            <div className={styles.tableListForm}>{this.renderForm()}</div>
-            <Table
-              className="components-table-demo-nested"
-              columns={columns}
-              expandedRowRender={expandedPaymentRowRender}
-              pagination={this.state.pagination}
-              dataSource={this.state.data}
-              loading={this.state.loading}
-              onChange={this.handleChangeTable}
-            />
-          </div>
-        </Card>
+      <Card bordered={false}>
+        <div className={styles.tableList}>
+          <div className={styles.tableListForm}>{this.renderForm()}</div>
+          <Table
+            className="components-table-demo-nested"
+            columns={columns}
+            expandedRowRender={expandedPaymentRowRender}
+            pagination={this.state.pagination}
+            dataSource={this.state.data}
+            loading={this.state.loading}
+            onChange={this.handleChangeTable}
+          />
+        </div>
+      </Card>
     );
   }
 }
